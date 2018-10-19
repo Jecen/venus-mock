@@ -1,7 +1,7 @@
 {
-  "name": "tfmms",
+  "name": "venus-mock",
   "version": "1.0.0",
-  "description": "Tianque Frontend Module Manage System",
+  "description": "venus-mock",
   "main": "index.js",
   "scripts": {
     "dist": "tsc",
@@ -10,9 +10,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@gitlab.hztianque.com:22016/f2e/tfmms.git"
+    "url": "ssh://git@github.com/Jecen/venus-mock.gi"
   },
-  "author": "liyun",
+  "author": "Jacen",
   "license": "ISC",
   "dependencies": {
     "@types/accepts": "^1.3.3",
