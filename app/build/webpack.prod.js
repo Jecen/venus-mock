@@ -6,7 +6,6 @@ const ProgressPlugin = require('webpack/lib/ProgressPlugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
 const OfflinePlugin = require('offline-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
 const base = require('./webpack.common')('production')
 const _ = require('./utils')
 // use chunk hash
@@ -41,7 +40,7 @@ base.plugins.push(
         '/': '/',
       },
     },
-  }),
+  })
 )
 
 base.optimization = {

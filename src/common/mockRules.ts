@@ -67,14 +67,13 @@ async function  generateRules() {
 			}
 		}
 	} catch (error) {
-		console.log(error)
+		console.log(error, '!!!!')
 	}
 }
 
-generateRules()
-
 module.exports = {
    *beforeSendRequest(req) {
+	console.log(req.url)
   	for (let rule of proxyRules) {
   		if (req.url.indexOf(rule.url) === 0
   			&& rule.method === req.requestOptions.method) {

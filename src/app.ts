@@ -10,15 +10,17 @@ import * as historyApiFallback from 'koa-history-api-fallback'
 
 
 import router from './routers'
-const appOption = require('../config')
+const appOption: any = require('./config').default
+// const appOption = require('../config')
 
 import * as Proxy from 'anyproxy'
-const proxyOptions = require('../config/proxy')
+const proxyOptions: any = require('./config/proxy').default
+// const proxyOptions = require('../config/proxy')
 
 const app: Koa = new Koa()
 
 app.on('error', (err, ctx) => {
-    console.log(err)
+    console.log('error', err)
 })
 
 app

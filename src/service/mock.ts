@@ -33,7 +33,14 @@ class S_mock {
 		this.db = db
 
 		db.serialize(() => {
-
+			const updateRules = () => mockModule.update()
+			let tableCount = 0
+			const cb = () => {
+				tableCount += 1
+				if (tableCount === 6) {
+					updateRules()
+				} 
+			}
 			db.run(`CREATE TABLE IF NOT EXISTS dicts (
 				id          INTEGER   PRIMARY KEY AUTOINCREMENT
 									  NOT NULL
@@ -41,7 +48,7 @@ class S_mock {
 				name        VARCHAR   NOT NULL
 				                      UNIQUE,
 				crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)
-			)`)
+			)`, cb)
 
 			db.run(`CREATE TABLE IF NOT EXISTS options (
 				id          INTEGER   PRIMARY KEY AUTOINCREMENT
@@ -50,7 +57,7 @@ class S_mock {
 				dictId      INT       NOT NULL,
 				name        VARCHAR   NOT NULL,
 				crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)
-			)`)
+			)`, cb)
 
 			db.run(`CREATE TABLE IF NOT EXISTS hosts (
 			    id          INTEGER   PRIMARY KEY AUTOINCREMENT
@@ -63,7 +70,7 @@ class S_mock {
 				online      BOOLEAN   NOT NULL
 									  DEFAULT (0),
 			    crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)
-			)`)
+			)`, cb)
 
 			db.run(`CREATE TABLE IF NOT EXISTS apis (
 			    id          INTEGER   PRIMARY KEY AUTOINCREMENT
@@ -75,7 +82,7 @@ class S_mock {
 			    type        INT       NOT NULL
 			    		     		  DEFAULT (0),
 			    crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP) 
-			)`)
+			)`, cb)
 
 			db.run(`CREATE TABLE IF NOT EXISTS methods (
 			    id          INTEGER   PRIMARY KEY AUTOINCREMENT
@@ -87,7 +94,7 @@ class S_mock {
 				result      VARCHAR,
 			    crDate      TIMESTAMP NOT NULL
 								      DEFAULT (CURRENT_TIMESTAMP) 
-			)`)
+			)`, cb)
 			
 			db.run(`CREATE TABLE IF NOT EXISTS params (
 				id          INTEGER   PRIMARY KEY AUTOINCREMENT
@@ -102,14 +109,16 @@ class S_mock {
 				                      DEFAULT (0),
 				crDate      TIMESTAMP NOT NULL
 								      DEFAULT (CURRENT_TIMESTAMP) 
-			)`)
+			)`, cb)
 			// TODO 字典项初始化
 			// db.run(`INSERT INTO hosts(name,host,path,protocol,online) VALUES ("venus-mock","api.venus-mock.com","/web/v1/api",1,1)`)
 			// db.run(`INSERT INTO apis(hostId,name,url,type) VALUES (2,"获取Venus-Mock信息","/info",7)`)
 			// db.run(`INSERT INTO methods(apiId,name,method,result) VALUES (1,"GET:获取Venus-Mock信息",3,"VenusMock是一个能够提供mock功能的应用工具")`)
-			
+
 		})
+
 		console.log('init')
+		
 	}
 
 	

@@ -4,8 +4,12 @@
   "description": "venus-mock",
   "main": "index.js",
   "scripts": {
+    "predist": "cd ./src/app && npm run build",
     "dist": "tsc",
-    "dev": "nodemon & cd ./src/app && npm run dev",
+    "postdist": "cd ./src/app && npm run copy",
+    "devServer": "nodemon",
+    "perdev": "cd ./app && npm run dev",
+    "dev": "nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
