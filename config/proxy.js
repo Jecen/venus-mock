@@ -1,7 +1,6 @@
 module.exports = {
   port: 9001,
   rule: require('../src/common/mockRules'),
-  // rule: require('../mock/index'),
   webInterface: {
     enable: true,
     webPort: 9101,

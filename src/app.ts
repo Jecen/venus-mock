@@ -28,8 +28,8 @@ app
     .use(router.routes())
     .use(router.allowedMethods())
     .use(historyApiFallback())
+    .use(km_static(path.join(__dirname, './app/dist')))
     .use(km_static(path.join(__dirname, '../static')))
-    // .use(km_static(path.join(__dirname, '../fe/dist')))
 app.listen(appOption.httpPort)
 console.log('bk server start at port:' + appOption.httpPort);
 
