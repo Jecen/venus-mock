@@ -19,11 +19,12 @@ router
     const page = await getPage()
     ctx.body = page
   })
-  .get('/api/:what/:type', apiHandler)
-  .post('/api/:what/:type', apiHandler)
-  .del('/api/:what/:type', apiHandler)
-  .put('/api/:what/:type', apiHandler)
-  .options('/api/:what/:type', apiHandler)
+
+  .get('/api/:what/:type/:action', apiHandler)
+  .post('/api/:what/:type/:action', apiHandler)
+  .del('/api/:what/:type/:action', apiHandler)
+  .put('/api/:what/:type/:action', apiHandler)
+  .options('/api/:what/:type/:action', apiHandler)
 
   // mock api
   .get('/mockapi/(.*)', mockHandler)
@@ -31,6 +32,5 @@ router
   .del('/mockapi/(.*)', mockHandler)
   .put('/mockapi/(.*)', mockHandler)
   .options('/mockapi/(.*)', mockHandler)
-
 
 export default router

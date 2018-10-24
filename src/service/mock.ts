@@ -1,16 +1,10 @@
-import * as path from 'path'
-import * as fs from 'fs'
 import * as faker from 'faker'
-import * as fse from 'fs-extra'
 import DB from '../common/db'
 import dbHelper from "../common/dbHelper"
-import rspHelper from '../common/responseHelper'
-// import * as mockModule from '../common/mockRules'
 
 const mockModule: any = require('../common/mockRules')
-const appConfig = require('../../config')
+const appConfig = require('../config').default
 import {Host, Api, Method, Param} from '../interface'
-import apiHandler from '../routers/api';
 interface MockRule {
 	url: string,
 	method: string,
@@ -18,11 +12,6 @@ interface MockRule {
 	api: Api,
 	mtd: Method
 }
-interface ApiQuery {
-	project: string,
-	api: string
-}
-
 class S_mock {
 	db: any
 	
@@ -37,7 +26,7 @@ class S_mock {
 			let tableCount = 0
 			const cb = () => {
 				tableCount += 1
-				if (tableCount === 6) {
+				if (tableCount === 7) {
 					updateRules()
 				} 
 			}
@@ -59,10 +48,20 @@ class S_mock {
 				crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)
 			)`, cb)
 
+			db.run(`CREATE TABLE IF NOT EXISTS projects (
+			    id          INTEGER   PRIMARY KEY AUTOINCREMENT
+			  						  NOT NULL
+									  UNIQUE,
+			    name        VARCHAR   NOT NULL,
+			    description VARCHAR   NOT NULL,
+			    crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)
+			)`, cb)
+
 			db.run(`CREATE TABLE IF NOT EXISTS hosts (
 			    id          INTEGER   PRIMARY KEY AUTOINCREMENT
 			  						  NOT NULL
-			  						  UNIQUE,
+									  UNIQUE,
+				projectId   INT       NOT NULL,
 			    name        VARCHAR   NOT NULL,
 			    host        VARCHAR   NOT NULL,
 			    path        VARCHAR,
@@ -110,6 +109,22 @@ class S_mock {
 				crDate      TIMESTAMP NOT NULL
 								      DEFAULT (CURRENT_TIMESTAMP) 
 			)`, cb)
+
+			db.run(`CREATE TABLE IF NOT EXISTS records (
+				id          INTEGER   PRIMARY KEY AUTOINCREMENT
+						   		      NOT NULL
+						   		      UNIQUE,
+				methodId    INT       NOT NULL,
+				hostId		INT		  NOT NULL,
+				apiId       INT       NOT NULL,
+				url			VARCHAR   NOT NULL,
+				success     INT       NOT NULL
+									  DEFAULT (1),
+				msg			VARCHAR,
+				crDate      TIMESTAMP NOT NULL
+								      DEFAULT (CURRENT_TIMESTAMP) 
+			)`, cb)
+
 			// TODO 字典项初始化
 			// db.run(`INSERT INTO hosts(name,host,path,protocol,online) VALUES ("venus-mock","api.venus-mock.com","/web/v1/api",1,1)`)
 			// db.run(`INSERT INTO apis(hostId,name,url,type) VALUES (2,"获取Venus-Mock信息","/info",7)`)
@@ -117,11 +132,8 @@ class S_mock {
 
 		})
 
-		console.log('init')
-		
+		console.log('init mock service')
 	}
-
-	
 
 	/**
 	 * 根据代理过的请求进行匹配，并返回规则对象
@@ -236,6 +248,33 @@ class S_mock {
 			msg: error.length > 0 ? error.join(',') : ''
 		}
 	}
+
+	/**
+	 * 记录mock次数
+	 * @param rule 匹配的mock规则
+	 */
+	private static recordMock(rule: MockRule, msg = "", success = true) {
+		console.log(rule)
+		const db: any = new DB()
+		const { host, api, mtd: method, url } = rule
+		const params = {
+			methodId: method.id,
+			hostId: host.id,
+			apiId: api.id,
+			url,
+			success: success ? 1 : 0,
+			msg
+		}
+		const sql = `INSERT INTO records(
+			methodId, hostId, apiId, url, success, msg
+		  ) VALUES(?, ?, ?, ?, ?, ?)`
+		const paramKeys = ['methodId', 'hostId', 'apiId', 'url', 'success', 'msg']
+		db.serialize(() => {
+			db.run(sql, [...paramKeys.map(key => params[key])], function () {
+				console.log("mock 记录成功！")
+			})
+		})
+	}
 	
 	/**
 	 * 获取mock api 的 response
@@ -248,6 +287,7 @@ class S_mock {
 		// 验证 mock api 的参数
 		let checkRst = await this.checkParams(mtd.id, method === "GET" ? query : body,  method === "GET")
 		if (!checkRst.success) {
+			this.recordMock(rule, checkRst.msg, false)
 			return {
 				"success": false,
 				"errorMessage": checkRst.msg,
@@ -256,33 +296,20 @@ class S_mock {
 		}
 		try {
 			const data = JSON.parse(rule.mtd.result)
+			this.recordMock(rule)
 			return {
 				"success": true,
 				"errorMessage": '',
 				"data": data
 			}
 		} catch (error) {
+			this.recordMock(rule)
 			return {
 				"success": true,
 				"errorMessage": '',
 				"data": rule.mtd.result
 			}
 		}
-	}
-
-
-	static apiService(ctx): object {
-		const params = ctx.params
-		const query = ctx.query
-		const method = ctx.request.method
-		const body = ctx.request.body
-		let res: object
-
-		switch (params.type) {
-			default:
-				break;
-		}
-		return res
 	}
 }
 

@@ -4,29 +4,29 @@ import Vuex from 'vuex'
 // 导入各个模块
 // 模块通常以页面为维度组织
 // 公用数据可以单独放在一个公用模块中
-import page from './modules/page'
+import mock from './modules/mock'
 
 Vue.use(Vuex)
 
 const state = {
-  count: 0
+  count: 0,
 }
 
 const mutations = {
-  INCREMENT (state) {
+  INCREMENT(state) {
     state.count++
   },
-  DECREMENT (state) {
+  DECREMENT(state) {
     state.count--
-  }
+  },
 }
 
 const actions = {
-  incrementAsync ({ commit }) {
+  incrementAsync({ commit }) {
     setTimeout(() => {
       commit('INCREMENT')
     }, 200)
-  }
+  },
 }
 
 const store = new Vuex.Store({
@@ -36,8 +36,8 @@ const store = new Vuex.Store({
 
   // 将模块添加到store
   modules: {
-    page,
-  }
+    mock,
+  },
 })
 
 export default store

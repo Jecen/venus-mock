@@ -12,7 +12,7 @@ module.exports = {
   proxy: {
     // 代理示例
     '/api': {
-      target: 'http://venus-mock.com/api',
+      target: 'http://localhost:9000/api',
       pathRewrite: {
         '/api': '',
       },

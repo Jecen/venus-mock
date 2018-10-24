@@ -1,4 +1,4 @@
-import {mockService} from '../service/mock'
+import { apiService } from '../service/api'
 
 const apiHandler = async (ctx, next) => {
   const params = ctx.params
@@ -14,10 +14,9 @@ const apiHandler = async (ctx, next) => {
   method === 'OPTIONS' && ctx.set({
     'Access-Control-Allow-Methods': 'POST, GET, DELETE, PUT, OPTIONS'
   })
-
   switch (params.what) {
     case 'mock':
-      response = mockService.apiService(ctx)
+      response = await apiService.handler(ctx)
       break;
     default:
       break;
