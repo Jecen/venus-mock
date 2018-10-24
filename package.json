@@ -8,7 +8,7 @@
     "dist": "tsc",
     "postdist": "cd ./src/app && npm run copy",
     "devServer": "nodemon",
-    "perdev": "cd ./app && npm run dev",
+    "devClient": "cd ./src/app && npm run dev",
     "dev": "nodemon",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

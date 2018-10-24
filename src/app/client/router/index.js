@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-// import Home from '../views/Home/index'
-// import HomeVue from '../views/Home/home.vue'
 const Home = () => import('../views/Home/index')
 const HomeVue = () => import('../views/Home/home.vue')
+// module
+import Mock from './mock'
 
 Vue.use(Router)
 
@@ -12,10 +12,11 @@ export default new Router({
   routes: [
     {
       path: '/',
-      component: Home
+      component: Home,
     }, {
       path: '/home',
-      component: HomeVue
-    }
-  ]
+      component: HomeVue,
+    },
+    Mock,
+  ],
 })

@@ -5,10 +5,11 @@ import router from './router'
 import store from './store'
 import iView from 'iview'
 import Http, { httpConfig, HTTP_ERROR_MAP, HttpError } from 'venus-fetch' // eslint-disable-line
+import components from './components'
 
 import 'iview/dist/styles/iview.css'
-
 Vue.use(iView)
+Vue.use(components)
 sync(store, router)
 
 const app = new Vue({

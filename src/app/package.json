@@ -20,6 +20,7 @@
     ]
   },
   "babel": {
+    "plugins": ["import-glob"],
     "presets": [
       [
         "vue-app",
@@ -43,6 +44,7 @@
     "js-md5": "^0.7.3",
     "promise-polyfill": "^6.0.2",
     "venus-fetch": "^1.0.4",
+    "venus-ui": "^1.0.9",
     "vue": "^2.5.16",
     "vue-jsonp": "^0.1.8",
     "vue-router": "^2.0.0",
@@ -53,6 +55,7 @@
     "autoprefixer": "^8.6.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.4",
+    "babel-plugin-import-glob": "^2.0.0",
     "babel-preset-vue-app": "^1.1.1",
     "chalk": "^1.1.3",
     "clean-webpack-plugin": "^0.1.19",
@@ -60,7 +63,7 @@
     "cross-env": "^2.0.0",
     "css-loader": "^0.23.1",
     "eslint": "^4.19.1",
-    "eslint-config-venus": "^1.0.1",
+    "eslint-config-venus": "^1.0.2",
     "eslint-config-vue": "latest",
     "eslint-plugin-vue": "^4.5.0",
     "express": "^4.16.3",

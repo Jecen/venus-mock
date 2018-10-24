@@ -31,6 +31,7 @@ module.exports = (mode) => ({
     alias: {
       root: path.join(__dirname, '../client'),
       components: path.join(__dirname, '../client/components'),
+      '@': path.join(__dirname, '../client/views'),
     },
     modules: [
       _.resolve('node_modules'),
