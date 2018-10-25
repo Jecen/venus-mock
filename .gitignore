@@ -8,3 +8,4 @@ mpackages/
 /dist/*
 yarn.lock*
 *.csv
+*.db
