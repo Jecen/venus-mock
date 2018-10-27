@@ -6,10 +6,13 @@ import store from './store'
 import iView from 'iview'
 import Http, { httpConfig, HTTP_ERROR_MAP, HttpError } from 'venus-fetch' // eslint-disable-line
 import components from './components'
+import 'venus-ui'
+import Socket from './lib/io'
 
 import 'iview/dist/styles/iview.css'
 Vue.use(iView)
 Vue.use(components)
+Vue.use(Socket, { path: 'http://localhost:9000', namespace: 'mock' })
 sync(store, router)
 
 const app = new Vue({

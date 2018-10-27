@@ -53,7 +53,8 @@ class S_mock {
 			  						  NOT NULL
 									  UNIQUE,
 			    name        VARCHAR   NOT NULL,
-			    description VARCHAR   NOT NULL,
+				description VARCHAR   NOT NULL,
+				img         VARCHAR   NOT NULL,
 			    crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)
 			)`, cb)
 
@@ -113,7 +114,8 @@ class S_mock {
 			db.run(`CREATE TABLE IF NOT EXISTS records (
 				id          INTEGER   PRIMARY KEY AUTOINCREMENT
 						   		      NOT NULL
-						   		      UNIQUE,
+										 UNIQUE,
+				projectId   INT       NOT NULL,
 				methodId    INT       NOT NULL,
 				hostId		INT		  NOT NULL,
 				apiId       INT       NOT NULL,
@@ -258,6 +260,7 @@ class S_mock {
 		const db: any = new DB()
 		const { host, api, mtd: method, url } = rule
 		const params = {
+			projectId: host.projectId,
 			methodId: method.id,
 			hostId: host.id,
 			apiId: api.id,
@@ -266,12 +269,12 @@ class S_mock {
 			msg
 		}
 		const sql = `INSERT INTO records(
-			methodId, hostId, apiId, url, success, msg
-		  ) VALUES(?, ?, ?, ?, ?, ?)`
-		const paramKeys = ['methodId', 'hostId', 'apiId', 'url', 'success', 'msg']
+			projectId, methodId, hostId, apiId, url, success, msg
+		  ) VALUES(?, ?, ?, ?, ?, ?, ?)`
+		const paramKeys = ['projectId', 'methodId', 'hostId', 'apiId', 'url', 'success', 'msg']
 		db.serialize(() => {
-			db.run(sql, [...paramKeys.map(key => params[key])], function () {
-				console.log("mock 记录成功！")
+			db.run(sql, [...paramKeys.map(key => params[key])], function (e) {
+				console.log("mock 记录成功！", e)
 			})
 		})
 	}

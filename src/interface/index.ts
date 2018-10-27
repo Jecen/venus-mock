@@ -1,5 +1,6 @@
 export interface Host {
     id: number,
+    projectId: number,
     name: string,
     host: string,
     path: string,

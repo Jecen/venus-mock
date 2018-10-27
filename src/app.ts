@@ -7,17 +7,16 @@ import * as km_logger from 'koa-logger'
 import * as bodyParser from 'koa-bodyparser'
 import * as koaBody from 'koa-body'
 import * as historyApiFallback from 'koa-history-api-fallback'
-
-
-import router from './routers'
-const appOption: any = require('./config').default
-// const appOption = require('../config')
-
 import * as Proxy from 'anyproxy'
-const proxyOptions: any = require('./config/proxy').default
-// const proxyOptions = require('../config/proxy')
+import SocketIo from './common/io'
+import router from './routers'
 
+/** app 配置 */
+const appOption: any = require('./config').default
+/** koa 实例 */
 const app: Koa = new Koa()
+/** mock socket 实例 */
+const mockIo = new SocketIo(app, 'mock')
 
 app.on('error', (err, ctx) => {
     console.log('error', err)
@@ -32,8 +31,13 @@ app
     .use(historyApiFallback())
     .use(km_static(path.join(__dirname, './app/dist')))
     .use(km_static(path.join(__dirname, '../static')))
+
 app.listen(appOption.httpPort)
+
 console.log('bk server start at port:' + appOption.httpPort);
+
+
+const proxyOptions: any = require('./config/proxy').default
 
 const proxyServer = new Proxy.ProxyServer(proxyOptions)
 proxyServer.on('ready', () => {
@@ -44,3 +48,5 @@ proxyServer.on('error', (err) => {
     console.log(err)
 })
 proxyServer.start()
+
+export default mockIo
