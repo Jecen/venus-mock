@@ -229,7 +229,6 @@ class S_api {
             if (checkRst.pass) {
                 db.serialize(() => {
                     db.run(sql, [name, description, img], function (err) {
-                        console.log(this, err)
                         resolve({ id: this.lastID})
                     })
                 })
