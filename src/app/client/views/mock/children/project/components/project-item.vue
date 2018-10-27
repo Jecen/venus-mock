@@ -2,16 +2,58 @@
   <Card class='cp project' @click='$emit("click", info)'>
     <div slot='title' class='header'>
       <span class='name'>{{info.name}} </span>
-      <lcd-number
-        class='count'
-        :value='info.recordCount'
-        color='#19be6b'
-        size='30'
-        background='#fff'
-        defaultColor='#fff' />
-      <span>次</span>
+      <span class='description'>{{info.description}}</span>
     </div>
-    <p>{{info.description}}</p>
+    <div class='detail-content'>
+      <div class='info-content'>
+        <p class='info-row'>
+          <span class='des'>域名数:</span>
+          <lcd-number
+            class='host-count'
+            :value='info.hostCount'
+            color='#19be6b'
+            size='35'
+            background='#fff'
+            defaultColor='#e8eaec' />
+        </p>
+        <p class='info-row'>
+          <span class='des'>接口数:</span>
+          <lcd-number
+            class='host-count'
+            :value='info.apiCount'
+            color='#19be6b'
+            size='35'
+            background='#fff'
+            defaultColor='#e8eaec' />
+        </p>
+        <p class='info-row'>
+          <span class='des'>方法数:</span>
+          <lcd-number
+            class='host-count'
+            :value='info.methodCount'
+            color='#19be6b'
+            size='35'
+            background='#fff'
+            defaultColor='#e8eaec' />
+        </p>
+      </div>
+      <div class='mock-count'>
+        <lcd-number
+          class='count'
+          :value='info.recordCount'
+          color='#515a6e'
+          size='55'
+          background='#fff'
+          defaultColor='#fff' />
+        <span>次</span>
+      </div>
+      <venus-waves
+        class='waves'
+        num='4'
+        color='rgba(51,95,200, 0.3)'
+        svgHeight='60'
+        animation='animation' />
+    </div>
   </Card>
 </template>
 
@@ -38,9 +80,13 @@ export default {
 <style lang="scss" scoped>
 .project{
   text-align: left;
-  width: 400px;
+  cursor: pointer;
   & /deep/ .ivu-card-head{
     padding: 0 16px;
+  }
+  & /deep/ .ivu-card-body{
+    padding: 0;
+    background-color: transparent;
   }
   .header{
     height: 50px;
@@ -50,8 +96,55 @@ export default {
     align-items: center;
     .name{
       flex: 1;
+      font-weight: 600;
     }
-    .count{
+    .description{
+      color: #999;
+      font-size: 12px;
+      font-weight: normal;
+    }
+  }
+  .detail-content{
+    position: relative;
+    height: 110px;
+    border-radius: 4px;
+    overflow: hidden;
+    .info-content{
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      .info-row{
+        height: 30px;
+        display: flex;
+        align-items: center;
+        margin-right: 20px;
+        .des{
+          display: inline-block;
+          font-weight: 500;
+          margin-right: 10px;
+        }
+        .description{
+          color: #666;
+          font-size: 12px;
+        }
+      }
+    }
+    .mock-count{
+      position: absolute;
+      top: 10px;
+      right: 30px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      color: #515a6e;
+    }
+    .waves{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
     }
   }
 }

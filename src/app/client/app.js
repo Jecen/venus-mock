@@ -32,9 +32,8 @@ const http = Http({
   },
   timeout: 5000,
 })
-
 Vue.prototype.http = http
-
+Vue.prototype.$isDev = process.env.NODE_ENV === 'development'
 export {
   app, router, store, http,
 }

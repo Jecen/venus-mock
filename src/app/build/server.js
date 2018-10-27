@@ -17,5 +17,11 @@ module.exports = {
         '/api': '',
       },
     },
+    '/upload': {
+      target: 'http://localhost:9000/upload',
+      pathRewrite: {
+        '/upload': '',
+      },
+    },
   },
 }

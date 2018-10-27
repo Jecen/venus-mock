@@ -75,7 +75,8 @@ class S_mock {
 			db.run(`CREATE TABLE IF NOT EXISTS apis (
 			    id          INTEGER   PRIMARY KEY AUTOINCREMENT
 			  			     	      UNIQUE
-			  			     	      NOT NULL,
+									  NOT NULL,
+				projectId   INT       NOT NULL,
 			    hostId      INT       NOT NULL,
 			    name        VARCHAR   NOT NULL,
 			    url         VARCHAR   NOT NULL,
@@ -87,7 +88,9 @@ class S_mock {
 			db.run(`CREATE TABLE IF NOT EXISTS methods (
 			    id          INTEGER   PRIMARY KEY AUTOINCREMENT
 			  			   		      NOT NULL
-			  			   		      UNIQUE,
+										   UNIQUE,
+				projectId   INT       NOT NULL,
+			    hostId      INT       NOT NULL,
 				apiId       INT       NOT NULL,
 			    name        VARCHAR   NOT NULL,
 				method      INT       NOT NULL,

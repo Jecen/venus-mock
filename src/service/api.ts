@@ -1,4 +1,6 @@
 import * as faker from 'faker'
+import * as fs from 'fs-extra'
+import * as path from 'path'
 import DB from '../common/db'
 import dbHelper from "../common/dbHelper"
 import rspHelper from '../common/responseHelper'
@@ -61,6 +63,7 @@ class S_api {
         const db: any = new DB()
         const sql: string = `SELECT ${key}, COUNT(*) as COUNT FROM records WHERE ${key} IN (${ids.join(', ')}) GROUP BY ${key}`
         db.all(sql, function (err, rows) {
+            console.log(rows, '!!sqlRecordTask!!')
             if (err) reject(err)
             resolve(rows)
         })
@@ -136,14 +139,14 @@ class S_api {
                                 return {
                                     ...itm,
                                     protocolName: protocolDict[protocol].name,
-                                    recordCount: recordMap[itm.id]
+                                    recordCount: recordMap[itm.id] || 0
                                 }
                             })
                             resolve({list: rows, total, page, size})
                         })
                 })
                 .catch((err) => {
-                    resolve(err)
+                    reject(err)
                 })
         })
     }
@@ -174,29 +177,84 @@ class S_api {
                         S_api.sqlQueryTask(`
                             SELECT projectId, COUNT(*) as COUNT FROM hosts WHERE projectId IN (${list.map(itm => itm.id).join(', ')}) GROUP BY projectId
                         `),
+                        S_api.sqlQueryTask(`
+                            SELECT projectId, COUNT(*) as COUNT FROM apis WHERE projectId IN (${list.map(itm => itm.id).join(', ')}) GROUP BY projectId
+                        `),
+                        S_api.sqlQueryTask(`
+                            SELECT projectId, COUNT(*) as COUNT FROM methods WHERE projectId IN (${list.map(itm => itm.id).join(', ')}) GROUP BY projectId
+                        `),
                     ])
-                        .then(([rows, hosts]) => {
-                            const recordMap = {}
-                            const hostMap = {}
-                            rows.forEach(r => {
-                                recordMap[r.projectId] = r.COUNT
-                            })
-                            hosts.forEach(r => {
-                                hostMap[r.projectId] = r.COUNT
-                            })
+                        .then(([rows, hosts, apis, methods]) => {
+                            const mapFunc = (arr) => {
+                                const map = {}
+                                arr.forEach(r => {
+                                    map[r.projectId] = r.COUNT
+                                })
+                                return map
+                            }
+                            const recordMap = mapFunc(rows)
+                            const hostMap = mapFunc(hosts)
+                            const apiMap = mapFunc(apis)
+                            const methodMap = mapFunc(methods)
                             resolve({ list: list.map(itm => ({
                                 ...itm,
-                                recordCount: recordMap[itm.id],
-                                hostCount: hostMap[itm.id],
+                                recordCount: recordMap[itm.id] || 0,
+                                hostCount: hostMap[itm.id] || 0,
+                                apiCount: apiMap[itm.id] || 0,
+                                methodCount: methodMap[itm.id] || 0
                             })), total, page, size})
                         })
                 })
                 .catch((err) => {
-                    resolve(err)
+                    reject(err)
                 })
         })
     }
 
+    /**
+     * 新增项目
+     * @param params 参数
+     */
+    private async insertProject(params: any): Promise<any> {
+        return new Promise((resolve, reject) => {
+            let { name, description, img} = params
+            const db = this.db
+            const sql = `INSERT INTO projects(
+                name, description, img
+              ) VALUES(?, ?, ?)`
+
+            const paramKeys = ['name', 'description']
+            const checkRst = dbHelper.checkParams(params, paramKeys)
+
+            if (checkRst.pass) {
+                db.serialize(() => {
+                    db.run(sql, [name, description, img], function (err) {
+                        console.log(this, err)
+                        resolve({ id: this.lastID})
+                    })
+                })
+            } else {
+                reject(checkRst.message)
+            }
+        })
+    }
+
+
+    private async uploadFiles(params: any): Promise<any> {
+        return new Promise((resolve, reject) => {
+            const file = params.files.file
+            const date = new Date()
+            const urlPath = `upload/${date.getFullYear()}-${date.getMonth() + 1}-${date.getDay()}/`
+            const dirPath: string = path.join(__dirname, `../../static/${urlPath}`)
+            fs.ensureDirSync(dirPath)
+            const fileName = `img-${date.getTime()}-${file.name}`
+            const packagePath = path.join(dirPath, fileName)
+            const reader = fs.createReadStream(file.path)
+            const stream = fs.createWriteStream(packagePath)
+            reader.pipe(stream)
+            resolve({ url: `/${urlPath}${fileName}`})
+        })
+    }
     
 
     /**
@@ -225,6 +283,27 @@ class S_api {
         switch(action) {
             case 'getList':
                 runner = this.getProjectList(params)
+                break;
+            case 'insert':
+                runner = this.insertProject(params)
+                break;
+            default:
+                runner = new Promise((resolve, reject) => reject())
+                break;
+        }
+        return runner
+    }
+
+    /**
+     * common 处理器 
+     * @param action 具体操作
+     * @param params 请求参数
+     */
+    private async commonHandler(action: string, params: any): Promise<any> {
+        let runner = null
+        switch(action) {
+            case 'upload':
+                runner = this.uploadFiles(params)
             default: 
                 break;
         }
@@ -244,16 +323,24 @@ class S_api {
                 case 'project':
                     handler = this.projectHandler(action, args)
                     break;
+                case 'common':
+                    handler = this.commonHandler(action, args)
+                    break;
                 default:
+                    resolve(null)
                     break;
             }
-            handler && handler.then(result => {
-                res = rspHelper.newResponse(result)
-                resolve(res)
-            }).catch(e => {
-                res = rspHelper.newResponse(null, false, e)
-                resolve(res)
-            })
+            if (handler) {
+                handler.then(result => {
+                    res = rspHelper.newResponse(result)
+                    resolve(res)
+                }).catch(e => {
+                    res = rspHelper.newResponse(null, false, e || '服务端出错，请联系管理员' )
+                    resolve(res)
+                })
+            } else {
+                resolve(null)
+            }
         })
 	}
 }

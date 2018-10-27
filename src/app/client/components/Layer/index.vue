@@ -19,6 +19,7 @@ export default {
 <style lang="scss" scoped>
 .layout{
   height: 100%;
+  overflow: auto;
   .layout-footer-center{
     text-align: center;
   }

@@ -4,7 +4,7 @@ const apiHandler = async (ctx, next) => {
   const params = ctx.params
   const { request: { method } } = ctx
   
-  let response:object
+  let response: object
 
   ctx.set({
     'Access-Control-Allow-Origin': '*', 
@@ -21,8 +21,10 @@ const apiHandler = async (ctx, next) => {
     default:
       break;
   }
-  
-  ctx.body = response
+  console.log(response, '!!!')
+  if (response) {
+    ctx.body = response
+  }
 }
 
 export default apiHandler

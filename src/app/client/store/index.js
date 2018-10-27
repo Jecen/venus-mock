@@ -4,7 +4,8 @@ import Vuex from 'vuex'
 // 导入各个模块
 // 模块通常以页面为维度组织
 // 公用数据可以单独放在一个公用模块中
-import mock from './modules/mock'
+
+import  * as modules from './modules/*.js'
 
 Vue.use(Vuex)
 
@@ -35,9 +36,7 @@ const store = new Vuex.Store({
   actions,
 
   // 将模块添加到store
-  modules: {
-    mock,
-  },
+  modules,
 })
 
 export default store
