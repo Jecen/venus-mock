@@ -58,14 +58,16 @@ export default {
       console.log(params);
     // empty check
     for (let i in params) {
-      checkDist = params[i]
-      if (!checkDist) {
-        rst.message = `${i} is empty`
-        return rst
-      } else {
-        if (typeof checkDist === 'string' && !checkDist.length) {
+      if (list.indexOf(i) > -1) {
+        checkDist = params[i]
+        if (!checkDist) {
           rst.message = `${i} is empty`
           return rst
+        } else {
+          if (typeof checkDist === 'string' && !checkDist.length) {
+            rst.message = `${i} is empty`
+            return rst
+          }
         }
       }
     }

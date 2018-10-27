@@ -129,6 +129,10 @@ export default {
       this.$refs.form.validate(success => {
         if (success) {
           this.$store.dispatch('mock/insertProject', { name, description, img })
+            .then(() => {
+              this.createDrawer = false
+              this.fetchList()
+            })
         }
       })
     },
