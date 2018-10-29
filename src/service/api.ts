@@ -4,6 +4,7 @@ import * as path from 'path'
 import DB from '../common/db'
 import dbHelper from "../common/dbHelper"
 import rspHelper from '../common/responseHelper'
+import Log from  '../common/log'
 
 const mockModule: any = require('../common/mockRules')
 const appConfig = require('../../config').default
@@ -28,8 +29,7 @@ class S_api {
 		faker.locale = 'zh_CN'
 		const db: any = new DB()
         this.db = db
-        
-		console.log('init api service')
+        Log.sysInfo('API SERVICE IS READY')
 	}
 
 	/**

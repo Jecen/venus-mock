@@ -1,6 +1,7 @@
 import DB from "./db"
 import dbHelper from "./dbHelper"
 import * as appConfig from '../../config'
+import Log from '../common/log'
 // interface
 import {Host, Api, Method} from '../interface'
 
@@ -73,7 +74,6 @@ async function  generateRules() {
 
 module.exports = {
    *beforeSendRequest(req) {
-	console.log(req.url)
   	for (let rule of proxyRules) {
   		if (req.url.indexOf(rule.url) === 0
   			&& rule.method === req.requestOptions.method) {
@@ -81,7 +81,8 @@ module.exports = {
   			const newReqOptions = req.requestOptions
   			newReqOptions.hostname = 'localhost'
   			newReqOptions.port = appConfig.httpPort
-  			newReqOptions.path = `/mockapi${newReqOptions.path}`
+			newReqOptions.path = `/mockapi${newReqOptions.path}`
+			Log.proxyLog(req.url, `//${newReqOptions.hostname}:${newReqOptions.port}${newReqOptions.path}`)
   			return {
   				requestOptions: newReqOptions
   			}

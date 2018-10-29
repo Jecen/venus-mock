@@ -11,7 +11,7 @@ export default {
   // 强制拦截https
   forceProxyHttps: false,
   // 屏蔽console输出
-  silent: false,
+  silent: true,
   // 忽略证书错误
   dangerouslyIgnoreUnauthorized: false
 }

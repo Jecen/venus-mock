@@ -1,6 +1,7 @@
 import * as faker from 'faker'
 import DB from '../common/db'
 import dbHelper from "../common/dbHelper"
+import Log from '../common/log'
 
 const mockModule: any = require('../common/mockRules')
 const appConfig = require('../config').default
@@ -137,7 +138,7 @@ class S_mock {
 
 		})
 
-		console.log('init mock service')
+		Log.sysInfo('MOCK SERVICE IS READY')
 	}
 
 	/**
@@ -145,12 +146,12 @@ class S_mock {
 	 * @param path 路径
 	 * @param method 请求方法
 	 */
-	matchRule(path: string, method: string): object {
+	matchRule(trueHost: string, path: string, method: string): object {
 		path = path.indexOf('?') > -1 ? path.substr(0, path.indexOf('?')) : path
 		path = path.replace(appConfig.proxyHandlePath, '')
 		for (let rule of mockModule.rules) {
 			const { host, api } = rule
-			if (`${host.path}${api.url}` === path && method === rule.method) {
+			if (`${host.host}` === trueHost  && `${host.path}${api.url}` === path && method === rule.method) {
 				return rule
 			}
 		}
