@@ -55,7 +55,6 @@ export default {
   checkParams: (params, list = []) => {
     const rst:any = {pass: false}
     let checkDist = null
-      console.log(params);
     // empty check
     for (let i in params) {
       if (list.indexOf(i) > -1) {

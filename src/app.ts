@@ -10,6 +10,7 @@ import * as historyApiFallback from 'koa-history-api-fallback'
 import * as Proxy from 'anyproxy'
 import SocketIo from './common/io'
 import router from './routers'
+import Log from './common/log'
 
 /** app 配置 */
 const appOption: any = require('./config').default
@@ -19,7 +20,7 @@ const app: Koa = new Koa()
 const mockIo = new SocketIo(app, 'mock')
 
 app.on('error', (err, ctx) => {
-    console.log('error', err)
+    Log.sysError(err)
 })
 
 app
@@ -34,18 +35,18 @@ app
 
 app.listen(appOption.httpPort)
 
-console.log('bk server start at port:' + appOption.httpPort);
+Log.sysInfo('main server start at port:' + appOption.httpPort)
 
 
 const proxyOptions: any = require('./config/proxy').default
 
 const proxyServer = new Proxy.ProxyServer(proxyOptions)
 proxyServer.on('ready', () => {
-    console.log(`proxy webInterface ready at  http://localhost:${proxyOptions.webInterface.webPort}/`)
+    Log.sysInfo(`proxy webInterface ready at  http://localhost:${proxyOptions.webInterface.webPort}/`)
     Proxy.utils.systemProxyMgr.enableGlobalProxy('127.0.0.1', '9001')
 })
 proxyServer.on('error', (err) => {
-    console.log(err)
+    Log.sysError(err)
 })
 proxyServer.start()
 

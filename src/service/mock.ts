@@ -260,7 +260,6 @@ class S_mock {
 	 * @param rule 匹配的mock规则
 	 */
 	private static recordMock(rule: MockRule, msg = "", success = true) {
-		console.log(rule)
 		const db: any = new DB()
 		const { host, api, mtd: method, url } = rule
 		const params = {
@@ -277,8 +276,8 @@ class S_mock {
 		  ) VALUES(?, ?, ?, ?, ?, ?, ?)`
 		const paramKeys = ['projectId', 'methodId', 'hostId', 'apiId', 'url', 'success', 'msg']
 		db.serialize(() => {
-			db.run(sql, [...paramKeys.map(key => params[key])], function (e) {
-				console.log("mock 记录成功！", e)
+			db.run(sql, [...paramKeys.map(key => params[key])], (e) => {
+				Log.sysInfo("mock 记录成功！")
 			})
 		})
 	}

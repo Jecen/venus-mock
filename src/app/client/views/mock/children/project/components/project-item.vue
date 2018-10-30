@@ -1,7 +1,21 @@
 <template>
-  <Card class='cp project' @click='$emit("click", info)'>
-    <div slot='title' class='header'>
-      <span class='name'>{{info.name}} </span>
+  <Card
+    class='cp project'
+    @click='$emit("click", info)'>
+    <div
+      slot='title'
+      class='header'
+      @mouseleave='isHover = false'
+      @mouseenter='isHover = true'>
+      <span class='name'>
+        {{info.name}}
+        <Button
+          class='set-btn'
+          v-if='isHover'
+          icon='md-hammer'
+          @click='$emit("edit")'
+          type='text' />
+      </span>
       <span class='description'>{{info.description}}</span>
     </div>
     <div class='detail-content'>
@@ -74,6 +88,11 @@ export default {
       }),
     },
   },
+  data() {
+    return {
+      isHover: false,
+    }
+  },
 }
 </script>
 
@@ -97,6 +116,9 @@ export default {
     .name{
       flex: 1;
       font-weight: 600;
+      .set-btn{
+        font-size: 18px;
+      }
     }
     .description{
       color: #999;

@@ -6,7 +6,6 @@ const { stat } = fs
 const copy =  (src, dst) => {
   //读取目录
   fs.readdir(src, function (err, paths) {
-    console.log(paths)
     if (err) {
       throw err
     }

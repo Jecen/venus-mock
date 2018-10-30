@@ -21,7 +21,6 @@ const apiHandler = async (ctx, next) => {
     default:
       break;
   }
-  console.log(response, '!!!')
   if (response) {
     ctx.body = response
   }

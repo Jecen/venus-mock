@@ -4,12 +4,14 @@ import { http } from '../../app'
 const FETCH_HOST_LIST = 'FETCH_HOST_LIST'
 const FETCH_PROJECTS_LIST = 'FETCH_PROJECTS_LIST'
 const INSERT_PROJECT = 'INSERT_PROJECT'
+const UPDATE_PROJECT = 'UPDATE_PROJECT'
 
 // 指定对应api
 const api = {
   [FETCH_HOST_LIST]: '/mock/host/getList',
   [FETCH_PROJECTS_LIST]: '/mock/project/getList',
   [INSERT_PROJECT]: '/mock/project/insert',
+  [UPDATE_PROJECT]: '/mock/project/update',
 }
 
 // 初始化store对象
@@ -23,6 +25,15 @@ const actions = {
   insertProject({ state }, payload) { // eslint-disable-line
     return new Promise((resolve) => {
       http.post(api[INSERT_PROJECT], payload)
+        .then(rst => {
+          resolve(rst)
+        })
+        .catch(e => console.log(e, 'error'))
+    })
+  },
+  updateProject({ state }, payload) { // eslint-disable-line
+    return new Promise((resolve) => {
+      http.post(api[UPDATE_PROJECT], payload)
         .then(rst => {
           resolve(rst)
         })

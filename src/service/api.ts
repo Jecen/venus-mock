@@ -63,7 +63,6 @@ class S_api {
         const db: any = new DB()
         const sql: string = `SELECT ${key}, COUNT(*) as COUNT FROM records WHERE ${key} IN (${ids.join(', ')}) GROUP BY ${key}`
         db.all(sql, function (err, rows) {
-            console.log(rows, '!!sqlRecordTask!!')
             if (err) reject(err)
             resolve(rows)
         })
@@ -129,7 +128,6 @@ class S_api {
                 .then(([list, total, protocolDict]) => {
                     S_api.sqlRecordTask('hostId', list.map(itm => itm.id))
                         .then(data => {
-                            console.log(data, '!!!')
                             const recordMap = {}
                             data.forEach(r => {
                                 recordMap[r.projectId] = r.COUNT

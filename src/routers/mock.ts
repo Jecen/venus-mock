@@ -2,7 +2,7 @@ import {s_mock, mockService} from '../service/mock'
 import mockIo from '../app'
 const mockHandler = async (ctx, next) => {
   let response = null
-  const {method, url, request: { headers: host }} = ctx
+  const {method, url, request: { headers: { host } }} = ctx
   const rule:any = s_mock.matchRule(host, url, method)
   if (rule) {
     response = await mockService.getResponse(rule, ctx)

@@ -8,21 +8,21 @@
         :sm='24'
         :md='12'
         :lg='12'>
-        <project class='project' :info='p' />
+        <project class='project' :info='p' @edit='edit(p)' />
       </Col>
     </Row>
     <Button
       class='add-btn'
       type='primary'
       shape='circle'
-      @click='createDrawer = true'
+      @click='drawerVisible = true'
       icon='md-add'>
       新增
     </Button>
     <Drawer
       class='create-draw'
-      title='创建项目'
-      v-model='createDrawer'
+      :title='projectFeild.id ? "修改项目" : "创建项目"'
+      v-model='drawerVisible'
       width='360'
       :mask-closable='false'>
       <div class='content'>
@@ -56,7 +56,7 @@
           </FormItem>
         </Form>
         <div class='footer'>
-          <Button type='primary' @click='addProject'>新增项目</Button>
+          <Button type='primary' @click='submit'>{{projectFeild.id ? "修改" : "新增"}}</Button>
           <Button @click='dismissDraw'>取消</Button>
         </div>
       </div>
@@ -75,11 +75,12 @@ export default {
     return {
       listenerId: '',
       projectFeild: {
+        id: '',
         name: '',
         description: '',
         img: '',
       },
-      createDrawer: false,
+      drawerVisible: false,
       rule: {
         name: [
           { required: true, message: '项目名称为必填', trigger: 'blur' },
@@ -116,9 +117,18 @@ export default {
         })
       return false
     },
+    submit() {
+      const { id } = this.projectFeild
+      if (id) {
+        this.editProject()
+      } else {
+        this.addProject()
+      }
+    },
     dismissDraw() {
-      this.createDrawer = false
+      this.drawerVisible = false
       this.projectFeild = {
+        id: '',
         name: '',
         description: '',
         img: '',
@@ -130,11 +140,28 @@ export default {
         if (success) {
           this.$store.dispatch('mock/insertProject', { name, description, img })
             .then(() => {
-              this.createDrawer = false
+              this.drawerVisible = false
               this.fetchList()
             })
         }
       })
+    },
+    editProject() {
+      const { id, name, description, img } = this.projectFeild
+      this.$refs.form.validate(success => {
+        if (success) {
+          this.$store.dispatch('mock/updateProject', { id, name, description, img })
+            .then(() => {
+              this.drawerVisible = false
+              this.fetchList()
+            })
+        }
+      })
+    },
+    edit(p) {
+      const { id, img, name, description } = p
+      this.projectFeild = { id, img, name, description }
+      this.drawerVisible = true
     },
   },
 }

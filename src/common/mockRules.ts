@@ -68,7 +68,7 @@ async function  generateRules() {
 			}
 		}
 	} catch (error) {
-		console.log(error, '!!!!')
+		Log.sysError(error)
 	}
 }
 
