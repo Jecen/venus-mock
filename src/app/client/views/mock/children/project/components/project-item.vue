@@ -61,12 +61,14 @@
           defaultColor='#fff' />
         <span>次</span>
       </div>
-      <venus-waves
-        class='waves'
-        num='4'
-        color='rgba(51,95,200, 0.3)'
-        svgHeight='60'
-        animation='animation' />
+      <keep-alive>
+        <venus-waves
+          class='waves'
+          num='4'
+          color='rgba(51,95,200, 0.3)'
+          svgHeight='60'
+          animation='animation' />
+      </keep-alive>
     </div>
   </Card>
 </template>

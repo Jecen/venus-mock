@@ -109,7 +109,7 @@ class S_api {
      * @param params 请求参数
      */
     private async getHostList(params: any): Promise<any> {
-        return new Promise((resolve, reject) => {
+        return new Promise( async (resolve, reject) => {
             let { page = 1, size = 10, query = "%", online = -1 } = params
             const offset = (page - 1) * size
 
@@ -120,32 +120,29 @@ class S_api {
                 ...(online  > -1 ? [{ type: queryType.eq, key: 'online', value: online }] : []),
             ])
 
-            Promise.all([
-                S_api.sqlTask(sql, size, offset),
-                S_api.sqlCountTask(sql),
-                S_api.getDict('protocol')
-            ])
-                .then(([list, total, protocolDict]) => {
-                    S_api.sqlRecordTask('hostId', list.map(itm => itm.id))
-                        .then(data => {
-                            const recordMap = {}
-                            data.forEach(r => {
-                                recordMap[r.projectId] = r.COUNT
-                            })
-                            const rows = list.map(itm => {
-                                const { protocol } = itm
-                                return {
-                                    ...itm,
-                                    protocolName: protocolDict[protocol].name,
-                                    recordCount: recordMap[itm.id] || 0
-                                }
-                            })
-                            resolve({list: rows, total, page, size})
-                        })
+            try {
+                const [list, total, protocolDict] = await Promise.all([
+                    S_api.sqlTask(sql, size, offset),
+                    S_api.sqlCountTask(sql),
+                    S_api.getDict('protocol')
+                ])
+                const recordData = await S_api.sqlRecordTask('hostId', list.map(itm => itm.id))
+                const recordMap = {}
+                recordData.forEach(r => {
+                    recordMap[r.projectId] = r.COUNT
                 })
-                .catch((err) => {
-                    reject(err)
+                const rows = list.map(itm => {
+                    const { protocol } = itm
+                    return {
+                        ...itm,
+                        protocolName: protocolDict[protocol].name,
+                        recordCount: recordMap[itm.id] || 0
+                    }
                 })
+                resolve({list: rows, total, page, size})
+            } catch (error) {
+                reject(error)
+            }
         })
     }
 
@@ -154,7 +151,7 @@ class S_api {
      * @param params 请求参数
      */
     private async getProjectList(params: any): Promise<any> {
-        return new Promise((resolve, reject) => {
+        return new Promise( async (resolve, reject) => {
             let { page = 1, size = 10, query = "%"} = params
             const offset = (page - 1) * size
 
@@ -164,48 +161,44 @@ class S_api {
                 { type: queryType.like, key: 'description', value: query },
             ])
 
-            Promise.all([
-                S_api.sqlTask(sql, size, offset),
-                S_api.sqlCountTask(sql)
-            ])
-                .then(([list, total]) => {
-
-                    Promise.all([
-                        S_api.sqlRecordTask('projectId', list.map(itm => itm.id)),
-                        S_api.sqlQueryTask(`
-                            SELECT projectId, COUNT(*) as COUNT FROM hosts WHERE projectId IN (${list.map(itm => itm.id).join(', ')}) GROUP BY projectId
-                        `),
-                        S_api.sqlQueryTask(`
-                            SELECT projectId, COUNT(*) as COUNT FROM apis WHERE projectId IN (${list.map(itm => itm.id).join(', ')}) GROUP BY projectId
-                        `),
-                        S_api.sqlQueryTask(`
-                            SELECT projectId, COUNT(*) as COUNT FROM methods WHERE projectId IN (${list.map(itm => itm.id).join(', ')}) GROUP BY projectId
-                        `),
-                    ])
-                        .then(([rows, hosts, apis, methods]) => {
-                            const mapFunc = (arr) => {
-                                const map = {}
-                                arr.forEach(r => {
-                                    map[r.projectId] = r.COUNT
-                                })
-                                return map
-                            }
-                            const recordMap = mapFunc(rows)
-                            const hostMap = mapFunc(hosts)
-                            const apiMap = mapFunc(apis)
-                            const methodMap = mapFunc(methods)
-                            resolve({ list: list.map(itm => ({
-                                ...itm,
-                                recordCount: recordMap[itm.id] || 0,
-                                hostCount: hostMap[itm.id] || 0,
-                                apiCount: apiMap[itm.id] || 0,
-                                methodCount: methodMap[itm.id] || 0
-                            })), total, page, size})
-                        })
-                })
-                .catch((err) => {
-                    reject(err)
-                })
+            try {
+                const [list, total] = await Promise.all([
+                    S_api.sqlTask(sql, size, offset),
+                    S_api.sqlCountTask(sql)
+                ])
+                const [rows, hosts, apis, methods] = await Promise.all([
+                    S_api.sqlRecordTask('projectId', list.map(itm => itm.id)),
+                    S_api.sqlQueryTask(`
+                        SELECT projectId, COUNT(*) as COUNT FROM hosts WHERE projectId IN (${list.map(itm => itm.id).join(', ')}) GROUP BY projectId
+                    `),
+                    S_api.sqlQueryTask(`
+                        SELECT projectId, COUNT(*) as COUNT FROM apis WHERE projectId IN (${list.map(itm => itm.id).join(', ')}) GROUP BY projectId
+                    `),
+                    S_api.sqlQueryTask(`
+                        SELECT projectId, COUNT(*) as COUNT FROM methods WHERE projectId IN (${list.map(itm => itm.id).join(', ')}) GROUP BY projectId
+                    `),
+                ])
+                const mapFunc = (arr) => {
+                    const map = {}
+                    arr.forEach(r => {
+                        map[r.projectId] = r.COUNT
+                    })
+                    return map
+                }
+                const recordMap = mapFunc(rows)
+                const hostMap = mapFunc(hosts)
+                const apiMap = mapFunc(apis)
+                const methodMap = mapFunc(methods)
+                resolve({ list: list.map(itm => ({
+                    ...itm,
+                    recordCount: recordMap[itm.id] || 0,
+                    hostCount: hostMap[itm.id] || 0,
+                    apiCount: apiMap[itm.id] || 0,
+                    methodCount: methodMap[itm.id] || 0
+                })), total, page, size})
+            } catch (error) {
+                reject(error)
+            }
         })
     }
 
@@ -236,7 +229,29 @@ class S_api {
         })
     }
 
+    private async updateProject(params: any): Promise<any>{
+        return new Promise((resolve, reject) => {
+            const {id, name, description, img}  = params
+            const db = this.db
+            const sql = `UPDATE projects SET (name, description, img) = (?, ?, ?) WHERE id = ?`
+            const paramKeys = ['name', 'description']
+            const checkRst = dbHelper.checkParams(params, paramKeys)
+            if (checkRst.pass) {
+                db.serialize(() => {
+                    db.run(sql, [name, description, img, id], function (err) {
+                        resolve({ id: this.lastID})
+                    })
+                })
+            } else {
+                reject(checkRst.message)
+            }
+        })
+    }
 
+    /**
+     * 文件上传
+     * @param params 请求参数
+     */
     private async uploadFiles(params: any): Promise<any> {
         return new Promise((resolve, reject) => {
             const file = params.files.file
@@ -283,6 +298,9 @@ class S_api {
                 break;
             case 'insert':
                 runner = this.insertProject(params)
+                break;
+            case 'update':
+                runner = this.updateProject(params)
                 break;
             default:
                 runner = new Promise((resolve, reject) => reject())
