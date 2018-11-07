@@ -111,5 +111,9 @@
   "engines": {
     "node": ">= 7.6.0",
     "npm": ">= 3.0.0"
+  },
+  "devDependencies": {
+    "tslint-config-airbnb": "^5.11.0",
+    "tslint-eslint-rules": "^5.4.0"
   }
 }

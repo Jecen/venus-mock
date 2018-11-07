@@ -47,6 +47,7 @@ export default {
     border-radius: 150px;
     border: 2px solid #e7e8e9;
     background-color: #999;
+    object-fit: cover;
   }
   .info-content{
     flex: 1;

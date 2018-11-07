@@ -28,6 +28,11 @@ export default {
       isError: !this.src,
     }
   },
+  watch: {
+    src: function (val) {
+      this.imgSrc = val
+    },
+  },
   mounted() {
     this.$refs.img.onerror = () => this.onImgError()
   },

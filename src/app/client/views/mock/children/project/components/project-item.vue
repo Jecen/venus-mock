@@ -4,10 +4,9 @@
       slot='title'
       class='header'
       @mouseleave='isHover = false'
-      @mouseenter='isHover = true'
-      @click='$router.push(`/mock/host/${info.id}`)'>
+      @mouseenter='isHover = true'>
       <span class='name'>
-        <Button class='name-btn' type='text'>{{info.name}}</Button>
+        <Button class='name-btn' type='text' @click='$router.push(`/mock/host/${info.id}`)'>{{info.name}}</Button>
         <Button
           class='set-btn'
           v-if='isHover'

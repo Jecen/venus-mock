@@ -1,40 +1,39 @@
 export interface Host {
-    id: number,
-    projectId: number,
-    name: string,
-    host: string,
-    path: string,
-    protocol: number,
-    online: boolean,
-    crDate: Date,
+  id: number;
+  projectId: number;
+  name: string;
+  host: string;
+  path: string;
+  protocol: number;
+  online: boolean;
+  crDate: Date;
 }
 
 export interface Api {
-    id: number,
-    hostId: number,
-    name: string,
-    url: string,
-    type: number,
-    crDate: Date,
+  id: number;
+  hostId: number;
+  name: string;
+  url: string;
+  type: number;
+  crDate: Date;
 }
 
 export interface Method {
-    id: number,
-    apiId: number,
-    name: string,
-    method: number,
-    result: string,
-    crDate: Date,
+  id: number;
+  apiId: number;
+  name: string;
+  method: number;
+  result: string;
+  crDate: Date;
 }
 
 export interface Param {
-    id: number,
-    methodId: number,
-    key: string,
-    name: string,
-    type: number,
-    info: string,
-    mandatory: boolean,
-    crDate: Date,
+  id: number;
+  methodId: number;
+  key: string;
+  name: string;
+  type: number;
+  info: string;
+  mandatory: boolean;
+  crDate: Date;
 }
-

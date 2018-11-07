@@ -1,29 +1,29 @@
-import { apiService } from '../service/api'
+import { service } from '../service/api';
 
 const apiHandler = async (ctx, next) => {
-  const params = ctx.params
-  const { request: { method } } = ctx
-  
-  let response: object
+  const params = ctx.params;
+  const { request: { method } } = ctx;
+
+  let response: object;
 
   ctx.set({
-    'Access-Control-Allow-Origin': '*', 
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Credentials': true,
-  })
-  ctx.set('Access-Control-Allow-Origin', '*')
+  });
+  ctx.set('Access-Control-Allow-Origin', '*');
   method === 'OPTIONS' && ctx.set({
-    'Access-Control-Allow-Methods': 'POST, GET, DELETE, PUT, OPTIONS'
-  })
+    'Access-Control-Allow-Methods': 'POST, GET, DELETE, PUT, OPTIONS',
+  });
   switch (params.what) {
     case 'mock':
-      response = await apiService.handler(ctx)
+      response = await service.handler(ctx);
       break;
     default:
       break;
   }
   if (response) {
-    ctx.body = response
+    ctx.body = response;
   }
-}
+};
 
-export default apiHandler
+export default apiHandler;
