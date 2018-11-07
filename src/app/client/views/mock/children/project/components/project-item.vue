@@ -1,14 +1,13 @@
 <template>
-  <Card
-    class='cp project'
-    @click='$emit("click", info)'>
+  <Card class='cp project'>
     <div
       slot='title'
       class='header'
       @mouseleave='isHover = false'
-      @mouseenter='isHover = true'>
+      @mouseenter='isHover = true'
+      @click='$router.push(`/mock/host/${info.id}`)'>
       <span class='name'>
-        {{info.name}}
+        <Button class='name-btn' type='text'>{{info.name}}</Button>
         <Button
           class='set-btn'
           v-if='isHover'
@@ -101,7 +100,6 @@ export default {
 <style lang="scss" scoped>
 .project{
   text-align: left;
-  cursor: pointer;
   & /deep/ .ivu-card-head{
     padding: 0 16px;
   }
@@ -115,17 +113,24 @@ export default {
     font-weight: 500;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     .name{
-      flex: 1;
       font-weight: 600;
+      .name-btn{
+        font-weight: 600;
+        padding: 0;
+        font-size: 14px;
+      }
       .set-btn{
         font-size: 18px;
       }
     }
     .description{
+      flex: 1;
       color: #999;
       font-size: 12px;
       font-weight: normal;
+      text-align: right;
     }
   }
   .detail-content{

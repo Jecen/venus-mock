@@ -10,7 +10,9 @@ const formatName = (name) => {
 const component = {
   install: function (Vue) { // eslint-disable-line
     for (const key in components) {
+
       if (components.hasOwnProperty(key)) {
+        console.log(key)
         const c = components[key]
         Vue.component(formatName(c.name), c)
         console.log(`${formatName(c.name)} component registered ！`)

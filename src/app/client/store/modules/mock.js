@@ -5,6 +5,7 @@ const FETCH_HOST_LIST = 'FETCH_HOST_LIST'
 const FETCH_PROJECTS_LIST = 'FETCH_PROJECTS_LIST'
 const INSERT_PROJECT = 'INSERT_PROJECT'
 const UPDATE_PROJECT = 'UPDATE_PROJECT'
+const GET_PROJECT_BY_ID = 'GET_PROJECT_BY_ID'
 
 // 指定对应api
 const api = {
@@ -12,6 +13,7 @@ const api = {
   [FETCH_PROJECTS_LIST]: '/mock/project/getList',
   [INSERT_PROJECT]: '/mock/project/insert',
   [UPDATE_PROJECT]: '/mock/project/update',
+  [GET_PROJECT_BY_ID]: '/mock/project/getProject',
 }
 
 // 初始化store对象
@@ -57,6 +59,15 @@ const actions = {
         .then(rst => {
           const { list } = rst.data
           commit(FETCH_PROJECTS_LIST, list)
+          resolve(rst)
+        })
+        .catch(e => console.log(e, 'error'))
+    })
+  },
+  getProjectById({ state }, payload) { // eslint-disable-line
+    return new Promise((resolve) => {
+      http.get(api[GET_PROJECT_BY_ID], payload)
+        .then(rst => {
           resolve(rst)
         })
         .catch(e => console.log(e, 'error'))

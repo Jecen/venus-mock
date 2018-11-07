@@ -1,14 +1,20 @@
 <template>
   <div class='page host-page'>
+    <project-info :info='project' />
     <Table :columns='hostColumn' :data='list' />
   </div>
 </template>
 
 <script>
+import projectInfo from './components/project-info'
 export default {
   name: 'Host',
+  components: {
+    'project-info': projectInfo,
+  },
   data() {
     return {
+      project: '',
       hostColumn: [
         {
           type: 'index',
@@ -51,10 +57,24 @@ export default {
   },
   mounted() {
     this.fetchList()
+    this.getProjectInfo()
   },
   methods: {
+    async getProjectInfo() {
+      const { projectId: id } = this.$route.params
+      try {
+        const rst = await this.$store.dispatch('mock/getProjectById', { id })
+        this.project = rst.data
+      } catch (error) {
+        console.log(error)
+      }
+    },
     fetchList() {
-      this.$store.dispatch('mock/getHostList')
+      const { projectId: id } = this.$route.params
+      const parmas = {
+        id,
+      }
+      this.$store.dispatch('mock/getHostList', parmas)
     },
   },
 }

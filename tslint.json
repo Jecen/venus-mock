@@ -1,0 +1,24 @@
+{
+    "extends": "tslint:recommended",
+    "defaultSeverity": "warn",
+    "rules": {
+        "for-direction": "error",
+        "quotemark":[true, "single","avoid-escape"], //引号的使用规则
+        "semicolon":[true, "never", "ignore-interfaces"], //分号的使用规则
+        "indent":[true, "spaces", 2], //使用Tab进行缩进，每次强制缩进2个字符
+        "typedef-whitespace": false, //在类型定义的时候，是否允许使用空格, 使用false，表示不对此项进行校验,不启用此项的校验
+        "whitespace": false, //空格的校验
+        "member-access": false, //类成员的显示可见性声明，即显示定义一个类的成员是否可见，即对类成员定义public | static 等
+        "one-line": false, //要求指定的标记与它们之前的表达式位于同一行
+        "trailing-comma": [true, { //对尾随逗号的校验
+            "multiline": {
+                "objects": "ignore",
+                "arrays": "never",
+                "functions": "never",
+                "typeLiterals": "ignore"
+            },
+            "esSpecCompliant": true //是否允许尾随逗号出现在剩余变量中
+        }]
+    },
+    "rulesDirectory": [] //未指定目录规则
+}
