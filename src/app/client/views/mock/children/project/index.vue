@@ -8,7 +8,11 @@
         :sm='24'
         :md='12'
         :lg='12'>
-        <project class='project' :info='p' @edit='edit(p)' />
+        <project
+          class='project'
+          :info='p'
+          @edit='edit(p)'
+          @del='del(p)' />
       </Col>
     </Row>
     <Button
@@ -82,6 +86,9 @@ export default {
     edit(p) {
       this.$refs.projectForm.setFeild(p)
       this.drawerVisible = true
+    },
+    del(p) {
+      this.$store.dispatch('mock/delProject', { id: p.id })
     },
   },
 }

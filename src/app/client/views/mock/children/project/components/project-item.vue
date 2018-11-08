@@ -6,15 +6,17 @@
       @mouseleave='isHover = false'
       @mouseenter='isHover = true'>
       <span class='name'>
-        <Button class='name-btn' type='text' @click='$router.push(`/mock/host/${info.id}`)'>{{info.name}}</Button>
         <Button
           class='set-btn'
-          v-if='isHover'
-          icon='md-hammer'
+          size='small'
+          icon='md-settings'
           @click='$emit("edit")'
           type='text' />
+        <Button class='name-btn' type='text' @click='$router.push(`/mock/host/${info.id}`)'>{{info.name}}</Button>
       </span>
-      <span class='description'>{{info.description}}</span>
+      <span class='description'>
+        {{info.description}}
+      </span>
     </div>
     <div class='detail-content'>
       <div class='info-content'>
@@ -59,6 +61,23 @@
           defaultColor='#fff' />
         <span>次</span>
       </div>
+
+
+      <Poptip
+        confirm
+        class='del-btn-wrapper'
+        trigger='click'
+        transfer
+        v-if='info.hostCount === 0'
+        placement='top-end'
+        title='确认删除?'
+        @on-ok='$emit("del")'>
+        <Button
+          class='del-btn'
+          size='small'
+          icon='md-trash'
+          type='text' />
+      </Poptip>
       <keep-alive>
         <venus-waves
           class='waves'
@@ -121,7 +140,8 @@ export default {
         font-size: 14px;
       }
       .set-btn{
-        font-size: 18px;
+        font-size: 16px;
+        padding: 1px 2px 2px;
       }
     }
     .description{
@@ -165,6 +185,22 @@ export default {
       display: flex;
       align-items: center;
       color: #515a6e;
+    }
+    .del-btn-wrapper{
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      z-index: 1;
+      .del-btn{
+        color: #57a3f3;
+        font-size: 18px;
+        outline: none;
+        box-shadow: none;
+        &:hover{
+          background-color: transparent;
+          color: #fff;
+        }
+      }
     }
     .waves{
       position: absolute;
