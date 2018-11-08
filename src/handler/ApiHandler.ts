@@ -1,6 +1,6 @@
 import Handler from './Handler';
 
-class HostHandler extends Handler{
+class ApiHandler extends Handler{
   constructor() {
     super();
   }
@@ -15,39 +15,38 @@ class HostHandler extends Handler{
         page = 1,
         size = 10,
         query = '%',
-        online = -1,
-        id: projectId = '',
+        type = -1, // mock or pass
+        id: hostId = '',
       } = params;
       const offset = (page - 1) * size;
 
-      const sql = this.getQuerySQL('hosts', [
-        ... (projectId ? [{ type: this.queryType.eq, key: 'projectId', value: projectId }] : []),
+      const sql = this.getQuerySQL('apis', [
+        ... (hostId ? [{ type: this.queryType.eq, key: 'hostId', value: hostId }] : []),
         { type: this.queryType.like, key: 'name', value: query },
-        { type: this.queryType.like, key: 'host', value: query },
-        ...(online > -1
-          ? [{ type: this.queryType.eq, key: 'online', value: online }]
+        ...(type > -1
+          ? [{ type: this.queryType.eq, key: 'type', value: type }]
           : []),
       ]);
 
       try {
-        const [list, total, protocolDict] = await Promise.all([
+        const [list, total, mockTypeDict] = await Promise.all([
           this.queryTask(sql, size, offset),
           this.countTask(sql),
-          this.getDict('protocol'),
+          this.getDict('mockType'),
         ]);
         const recordData = await this.recordTask(
-          'hostId',
+          'apiId',
           list.map(itm => itm.id),
         );
         const recordMap = {};
         recordData.forEach((r) => {
-          recordMap[r.hostId] = r.COUNT;
+          recordMap[r.apiId] = r.COUNT;
         });
         const rows = list.map((itm) => {
-          const { protocol } = itm;
+          const { type } = itm;
           return {
             ...itm,
-            protocolName: protocolDict[protocol].name,
+            typeName: mockTypeDict[type].name,
             recordCount: recordMap[itm.id] || 0,
           };
         });
@@ -65,19 +64,19 @@ class HostHandler extends Handler{
    */
   public async insert(params: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
-      const { name, host, path, protocol, online, projectId } = params;
+      const { hostId, name, url, type, projectId } = params;
       const sql = `
-        INSERT INTO hosts( name, host, path, protocol, online, projectId )
-        VALUES(?, ?, ?, ?, ?, ?)
+        INSERT INTO apis( hostId, name, url, type, projectId )
+        VALUES(?, ?, ?, ?, ?)
       `;
 
       const checkRst = this.checkParams(
         params,
-        ['name', 'host', 'path', 'protocol', 'online', 'projectId'],
+        ['hostId', 'name', 'url', 'type', 'projectId'],
        );
 
       if (checkRst.pass) {
-        const success = await this.run(sql, [name, host, path, protocol, online, projectId]);
+        const success = await this.run(sql, [hostId, name, url, type, projectId]);
         if (success) {
           resolve();
         } else {
@@ -95,17 +94,17 @@ class HostHandler extends Handler{
    */
   public async update(params: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
-      const { id, name, host, path, protocol, online } = params;
+      const { id, name, url, type } = params;
 
       const sql = `
-        UPDATE hosts
-        SET (name, host, path, protocol, online) = (?, ?, ?, ?, ?)
+        UPDATE apis
+        SET (name, url, type) = (?, ?, ?)
         WHERE id = ?
       `;
-      const paramKeys = ['name', 'host', 'path', 'protocol', 'online'];
+      const paramKeys = ['name', 'url', 'type'];
       const checkRst = this.checkParams(params, paramKeys);
       if (checkRst.pass) {
-        const success = await this.run(sql, [name, host, path, protocol, online, id]);
+        const success = await this.run(sql, [name, url, type, id]);
         if (success) {
           resolve();
         } else {
@@ -125,45 +124,38 @@ class HostHandler extends Handler{
     return new Promise(async (resolve, reject) => {
       const { id } = params;
 
-      const sql = this.getQuerySQL('hosts', [
+      const sql = this.getQuerySQL('apis', [
         { type: this.queryType.eq, key: 'id', value: id },
       ]);
 
       try {
         const [
-          [host],
+          [apis],
           [{ COUNT: records }],
-          [{ COUNT: apis }],
           [{ COUNT: methods }],
           [{ COUNT: successCount }],
           [{ COUNT: failureCount }],
         ] = await Promise.all([
           this.queryTask(sql),
-          this.recordTask('hostId', [id]),
-          this.task(`
-            SELECT COUNT(*) as COUNT
-            FROM apis
-            WHERE hostId = ${id}
-          `),
+          this.recordTask('apiId', [id]),
           this.task(`
             SELECT COUNT(*) as COUNT
             FROM methods
-            WHERE hostId = ${id}
+            WHERE apiId = ${id}
           `),
           this.task(`
             SELECT COUNT(*) as COUNT
             FROM records
-            WHERE hostId = ${id} and success = 1
+            WHERE apiId = ${id} and success = 1
           `),
           this.task(`
             SELECT COUNT(*) as COUNT
             FROM records
-            WHERE hostId = ${id} and success = 0
+            WHERE apiId = ${id} and success = 0
           `),
         ]);
         resolve({
-          ...host,
-          apis,
+          ...apis,
           failureCount,
           methods,
           records,
@@ -184,7 +176,7 @@ class HostHandler extends Handler{
       const { id } = params;
 
       const sql = `
-        DELETE FROM hosts
+        DELETE FROM apis
         WHERE id = ?;
       `;
       try {
@@ -212,10 +204,10 @@ class HostHandler extends Handler{
       case 'update':
         runner = this.update(params);
         break;
-      case 'getHost':
+      case 'getApi':
         runner = this.obtain(params);
         break;
-      case 'delHost':
+      case 'delApi':
         runner = this.del(params);
         break;
       default:
@@ -226,4 +218,4 @@ class HostHandler extends Handler{
   }
 }
 
-export default HostHandler;
+export default ApiHandler;

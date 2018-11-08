@@ -28,6 +28,15 @@ class CommonHandler extends Handler {
     });
   }
 
+  private async getDictionaries(params: any): Promise<any> {
+    const { name } = params;
+    const dictMap = await this.getDict(name);
+    return new Promise(resolve => resolve({
+      dictName: name,
+      options: Object.keys(dictMap).map(key => dictMap[key]),
+    }));
+  }
+
   public obtain(params: any): Promise<any> {
     return new Promise(resolve => resolve());
   }
@@ -49,6 +58,9 @@ class CommonHandler extends Handler {
     switch (action) {
       case 'upload':
         runner = this.uploadFiles(params);
+        break;
+      case 'dict':
+        runner = this.getDictionaries(params);
         break;
       default:
         break;

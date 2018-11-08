@@ -243,7 +243,8 @@ class MockService {
 			    id          INTEGER   PRIMARY KEY AUTOINCREMENT
 			  						            NOT NULL
 									              UNIQUE,
-			    name        VARCHAR   NOT NULL,
+          name        VARCHAR   NOT NULL
+                                UNIQUE,
 				  description VARCHAR   NOT NULL,
 				  img         VARCHAR   NOT NULL,
 			    crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)

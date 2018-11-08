@@ -1,16 +1,18 @@
 <template>
   <div class='page host-page'>
     <project-info :info='project' />
-    <Table :columns='hostColumn' :data='hosts' />
+    <host-box v-for='h in hosts' :key='h.id' :host='h' />
   </div>
 </template>
 
 <script>
 import projectInfo from './components/project-info'
+import hostBox from './components/host-box'
 export default {
   name: 'Host',
   components: {
     'project-info': projectInfo,
+    'host-box': hostBox,
   },
   data() {
     return {
@@ -58,6 +60,10 @@ export default {
   mounted() {
     this.fetchList()
     this.getProjectInfo()
+
+    //! test
+    this.$store.dispatch('mock/getMethodList')
+    this.$store.dispatch('common/getDict', { name: 'method' })
   },
   methods: {
     async getProjectInfo() {

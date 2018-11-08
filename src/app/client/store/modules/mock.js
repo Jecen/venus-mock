@@ -8,6 +8,7 @@ const INSERT_PROJECT = 'INSERT_PROJECT'
 const UPDATE_PROJECT = 'UPDATE_PROJECT'
 const GET_PROJECT_BY_ID = 'GET_PROJECT_BY_ID'
 const DEL_PROJECT_BY_ID = 'DEL_PROJECT_BY_ID'
+const GET_METHOD_LIST = 'GET_METHOD_LIST'
 
 // 指定对应api
 const api = {
@@ -17,6 +18,7 @@ const api = {
   [UPDATE_PROJECT]: '/mock/project/update',
   [GET_PROJECT_BY_ID]: '/mock/project/getProject',
   [DEL_PROJECT_BY_ID]: '/mock/project/delProject',
+  [GET_METHOD_LIST]: '/mock/method/getList',
 }
 
 // 初始化store对象
@@ -33,6 +35,15 @@ const actions = {
         .then(rst => {
           const { list } = rst.data
           commit(FETCH_HOST_LIST, list)
+          resolve(rst)
+        })
+        .catch(e => console.log(e, 'error'))
+    })
+  },
+  getMethodList({ commit }, payload) { //eslint-disable-line
+    return new Promise((resolve) => {
+      http.get(api[GET_METHOD_LIST], payload)
+        .then(rst => {
           resolve(rst)
         })
         .catch(e => console.log(e, 'error'))
