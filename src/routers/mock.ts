@@ -1,13 +1,11 @@
 import { service, mockService } from '../service/mock';
-import app from '../app';
-const mockIo = app;
 const mockHandler = async (ctx, next) => {
   let response = null;
   const { method, url, request: { headers: { host } } } = ctx;
   const rule:any = service.matchRule(host, url, method);
   if (rule) {
     response = await mockService.getResponse(rule, ctx);
-    app.sendMsg('mock', response);
+    ctx.app.mock.emit('mock', JSON.stringify(response));
   }
 
   ctx.set({

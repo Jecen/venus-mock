@@ -198,7 +198,6 @@ class ProjectHandler extends Handler{
   public async del(params: any) : Promise<any> {
     return new Promise(async (resolve, reject) => {
       const { id } = params;
-      console.log('!!!! del', id);
       const sql = `
         DELETE FROM projects
         WHERE id = ${id}

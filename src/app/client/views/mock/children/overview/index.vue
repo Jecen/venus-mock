@@ -1,7 +1,7 @@
 <template>
   <div class='page host-page'>
     <project-info :info='project' />
-    <Table :columns='hostColumn' :data='list' />
+    <Table :columns='hostColumn' :data='hosts' />
   </div>
 </template>
 
@@ -51,7 +51,7 @@ export default {
     }
   },
   computed: {
-    list() {
+    hosts() {
       return this.$store.getters['mock/hosts']
     },
   },
@@ -75,6 +75,12 @@ export default {
         id,
       }
       this.$store.dispatch('mock/getHostList', parmas)
+        .then(({ data: { list }}) => {
+          console.log(list)
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
   },
 }

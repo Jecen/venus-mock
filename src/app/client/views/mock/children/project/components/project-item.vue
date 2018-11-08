@@ -12,7 +12,7 @@
           icon='md-settings'
           @click='$emit("edit")'
           type='text' />
-        <Button class='name-btn' type='text' @click='$router.push(`/mock/host/${info.id}`)'>{{info.name}}</Button>
+        <Button class='name-btn' type='text' @click='$router.push(`/mock/overview/${info.id}`)'>{{info.name}}</Button>
       </span>
       <span class='description'>
         {{info.description}}

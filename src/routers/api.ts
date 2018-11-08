@@ -3,7 +3,6 @@ import { service } from '../service/api';
 const apiHandler = async (ctx, next) => {
   const params = ctx.params;
   const { request: { method } } = ctx;
-
   let response: object;
 
   ctx.set({

@@ -1,7 +1,7 @@
 import Mock from '@/mock'
 
 const Project = () => import('@/mock/children/project')
-const Host = () => import('@/mock/children/host')
+const Overview = () => import('@/mock/children/overview')
 const Api = () => import('@/mock/children/api')
 
 export default {
@@ -12,8 +12,8 @@ export default {
     path: '/mock/project',
     component: Project,
   }, {
-    path: '/mock/host/:projectId',
-    component: Host,
+    path: '/mock/overview/:projectId',
+    component: Overview,
   }, {
     path: '/mock/api/:hostId',
     component: Api,
