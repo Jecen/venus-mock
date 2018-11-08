@@ -22,6 +22,11 @@ abstract class Handler {
     return dbHelper.getQuerySQL(table, condition);
   }
 
+  /**
+   * 参数验证
+   * @param params 参数
+   * @param paramKeys 需要验证的key
+   */
   public checkParams(params: any, paramKeys: string[]): any {
     return dbHelper.checkParams(params, paramKeys);
   }
@@ -116,6 +121,11 @@ abstract class Handler {
   }
 
   public abstract handle(action: string, params: any): Promise<any>;
+  public abstract obtain(params: any): Promise<any>;
+  public abstract del(params: any): Promise<any>;
+  public abstract update(params: any): Promise<any>;
+  public abstract insert(params: any): Promise<any>;
+  public abstract getList(params: any): Promise<any>;
 }
 
 export default Handler;

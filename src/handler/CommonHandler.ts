@@ -28,11 +28,28 @@ class CommonHandler extends Handler {
     });
   }
 
+  public obtain(params: any): Promise<any> {
+    return new Promise(resolve => resolve());
+  }
+  public del(params: any): Promise<any> {
+    return new Promise(resolve => resolve());
+  }
+  public update(params: any): Promise<any> {
+    return new Promise(resolve => resolve());
+  }
+  public insert(params: any): Promise<any> {
+    return new Promise(resolve => resolve());
+  }
+  public getList(params: any): Promise<any> {
+    return new Promise(resolve => resolve());
+  }
+
   public handle(action: string, params: any): Promise<any> {
     let runner = null;
     switch (action) {
       case 'upload':
         runner = this.uploadFiles(params);
+        break;
       default:
         break;
     }

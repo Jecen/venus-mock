@@ -10,7 +10,7 @@ class ProjectHandler extends Handler{
    * 获取Host列表
    * @param params 请求参数
    */
-  private async getProjectList(params: any): Promise<any> {
+  public async getList(params: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
       const { page = 1, size = 10, query = '%' } = params;
 
@@ -76,10 +76,9 @@ class ProjectHandler extends Handler{
    * 新增项目
    * @param params 参数
    */
-  private async insertProject(params: any): Promise<any> {
+  public async insert(params: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
       const { name, description, img } = params;
-      const dataBase = this.dataBase;
       const sql = `
         INSERT INTO projects( name, description, img )
         VALUES(?, ?, ?)
@@ -89,7 +88,11 @@ class ProjectHandler extends Handler{
 
       if (checkRst.pass) {
         const success = await this.run(sql, [name, description, img]);
-        resolve();
+        if (success) {
+          resolve();
+        } else {
+          reject('新增失败');
+        }
       } else {
         reject(checkRst.message);
       }
@@ -97,10 +100,10 @@ class ProjectHandler extends Handler{
   }
 
   /**
-   * 获取Host列表
+   * 获取Project
    * @param params 请求参数
    */
-  private async getProject(params: any): Promise<any> {
+  public async obtain(params: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
       const { id } = params;
 
@@ -168,7 +171,7 @@ class ProjectHandler extends Handler{
    * 修改项目信息
    * @param params 请求参数
    */
-  private async updateProject(params: any): Promise<any> {
+  public async update(params: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
       const { id, name, description, img } = params;
 
@@ -177,9 +180,38 @@ class ProjectHandler extends Handler{
       const checkRst = this.checkParams(params, paramKeys);
       if (checkRst.pass) {
         const success = await this.run(sql, [name, description, img, id]);
-        resolve();
+        if (success) {
+          resolve();
+        } else {
+          reject('修改失败');
+        }
       } else {
         reject(checkRst.message);
+      }
+    });
+  }
+
+  /**
+   * 删除Project
+   * @param params 请求参数
+   */
+  public async del(params: any) : Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      const { id } = params;
+
+      const sql = `
+        DELETE FROM projects
+        WHERE id = ?;
+      `;
+      try {
+        const success = await this.run(sql, [id]);
+        if (success) {
+          resolve();
+        } else {
+          reject('删除失败');
+        }
+      } catch (error) {
+        reject(error);
       }
     });
   }
@@ -188,16 +220,19 @@ class ProjectHandler extends Handler{
     let runner = null;
     switch (action) {
       case 'getList':
-        runner = this.getProjectList(params);
+        runner = this.getList(params);
         break;
       case 'insert':
-        runner = this.insertProject(params);
+        runner = this.insert(params);
         break;
       case 'update':
-        runner = this.updateProject(params);
+        runner = this.update(params);
         break;
       case 'getProject':
-        runner = this.getProject(params);
+        runner = this.obtain(params);
+        break;
+      case 'delProject':
+        runner = this.del(params);
         break;
       default:
         runner = new Promise((resolve, reject) => reject());
