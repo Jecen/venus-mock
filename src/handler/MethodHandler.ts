@@ -47,7 +47,6 @@ class MethodHandler extends Handler{
             return { [itm.id]: list };
           }),
         );
-        console.log(paramsData);
         const recordMap = {};
         recordData.forEach((r) => {
           recordMap[r.methodId] = r.COUNT;

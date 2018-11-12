@@ -28,7 +28,7 @@
       </p>
       <div class='api-list' :style='`height: ${apiContentHeihgt}px`'>
         <div v-if='apis.length === 0' class='empty-holder'>
-          暂无Api,请新增
+          暂无Api,请<a>新增</a>
         </div>
         <div v-esle class='inner-wrapper'>
           <api-item
@@ -129,6 +129,7 @@ export default {
 .host-box{
   padding: 14px;
   text-align: left;
+  background-color: #fff;
   .info-wrapper{
     .online{
       background: #19be6b;
@@ -198,6 +199,7 @@ export default {
         border-radius: 4px;
         color: #fff;
         text-align: center;
+        font-size: 14px;
       }
       .inner-wrapper{
         .api-itm{

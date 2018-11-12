@@ -9,10 +9,12 @@
           :host='h'
           :apis='apiMap[h.id] || []'
           @apiVisible='(v) => fetchApis(h, v)'
-          @update='fetchList()' />
+          @update='getDate()' />
       </div>
       <div class='method-content'>
-        Method
+        <Affix :offset-top='64'>
+          <span class='demo-affix'>Method</span>
+        </Affix>
       </div>
     </div>
   </div>
@@ -70,16 +72,16 @@ export default {
   computed: {
   },
   mounted() {
-    const { projectId: id } = this.$route.params
-    this.$store.dispatch('mock/getOverViewDate', { id })
-      .then(({ project, host: hosts }) => {
-        this.project = project
-        this.hosts = hosts
-      })
-
+    this.getDate()
     this.$store.dispatch('common/getDict', { name: 'mockType' })
   },
   methods: {
+    async getDate() {
+      const { projectId: id } = this.$route.params
+      const { project, host: hosts } = await this.$store.dispatch('mock/getOverViewDate', { id })
+      this.project = project
+      this.hosts = hosts
+    },
     async fetchApis(h, v) {
       if (v) {
         const apis = await this.$store.dispatch('mock/getHostOverviewData', { id: h.id })
@@ -96,17 +98,17 @@ export default {
 <style lang="scss" scoped>
 .host-page{
   height: 100%;
-  background-color: #fff;
+  background-color: #f5f7f9;
   .content{
     width: 100%;
-    height: calc(100% - 190px);
+    height: calc(100% - 200px);
     display: flex;
+    background-color: #fff;
     .method-content{
       width: 400px;
     }
     .host-content{
       flex: 1;
-      overflow-y: auto;
     }
   }
 }

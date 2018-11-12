@@ -41,6 +41,8 @@ export default {
 .project-info{
   display: flex;
   padding: 20px;
+  margin-bottom: 10px;
+  background-color: #fff;
   .logo{
     width: 150px;
     height: 150px;

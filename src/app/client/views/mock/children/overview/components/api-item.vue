@@ -1,5 +1,5 @@
 <template>
-  <div class='cp api-item' v-if='api'>
+  <div class='cp api-item' :style='host.online === 1 ? "" : `filter: grayscale(100%);`' v-if='api'>
     <p class='api-name'>
       {{api.name}}
       <RadioGroup
@@ -10,7 +10,6 @@
         <Radio v-for='opt in typeDict.options' :key='opt.id' :label='opt.id'>{{opt.name}}</Radio>
       </RadioGroup>
       <span class='url'>{{host.protocolName}}://{{host.host}}{{host.path}}{{api.url}}</span>
-
     </p>
     <p class='method-box'>
       <span class='des'>Method: </span>
@@ -22,6 +21,12 @@
         type='text'>
         {{m.methodName.toUpperCase()}}
       </Button>
+      <Button
+        class='method-btn add-btn'
+        size='small'
+        icon='md-add-circle'
+        ghost
+        type='text' />
       <i style='flex: 1;' />
       <span class='api-date'>{{api.crDate}}</span>
     </p>
@@ -71,6 +76,7 @@ export default {
   border-radius: 4px;
   border: 1px solid #2d8cf0;
   padding: 6px 16px;
+  transition: all .3s ease;
   .api-name{
     height: 30px;
     line-height: 30px;
@@ -114,7 +120,6 @@ export default {
     }
     .method-btn{
       padding: 0 7px 2px;
-      margin-right: 10px;
       font-weight: 500;
       font-size: 16px;
       box-shadow: none;
@@ -126,6 +131,17 @@ export default {
       }
       &:hover{
         text-shadow: 0px 0px 3px #2d8cf0;
+      }
+    }
+    .add-btn{
+      color: #808695;
+      text-shadow: none;
+      &:focus{
+        text-shadow: none;
+      }
+      &:hover{
+        text-shadow: none;
+        color: #2d8cf0;
       }
     }
   }

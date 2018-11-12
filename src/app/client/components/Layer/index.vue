@@ -3,7 +3,7 @@
     <Header>
       <div class='layout-logo'>Venus Mock</div>
     </Header>
-    <Content :style='{height: "calc(100% - 133px)"}'>
+    <Content :style='{height: "max-content"}'>
       <div style='width:100%;height:100%;padding:20px 20px 0;'>
         <slot />
       </div>
@@ -24,7 +24,7 @@ export default {
 .layout{
   min-width: 1200px;
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
   .layout-footer-center{
     text-align: center;
   }
