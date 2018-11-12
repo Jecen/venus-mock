@@ -1,13 +1,20 @@
 <template>
   <div class='page host-page'>
     <project-info :info='project' />
-    <host-box
-      v-for='h in hosts'
-      :key='h.id'
-      :host='h'
-      :apis='apiMap[h.id] || []'
-      @apiVisible='(v) => fetchApis(h, v)'
-      @update='fetchList()' />
+    <div class='content'>
+      <div class='host-content'>
+        <host-box
+          v-for='h in hosts'
+          :key='h.id'
+          :host='h'
+          :apis='apiMap[h.id] || []'
+          @apiVisible='(v) => fetchApis(h, v)'
+          @update='fetchList()' />
+      </div>
+      <div class='method-content'>
+        Method
+      </div>
+    </div>
   </div>
 </template>
 
@@ -69,6 +76,8 @@ export default {
         this.project = project
         this.hosts = hosts
       })
+
+    this.$store.dispatch('common/getDict', { name: 'mockType' })
   },
   methods: {
     async fetchApis(h, v) {
@@ -88,6 +97,18 @@ export default {
 .host-page{
   height: 100%;
   background-color: #fff;
+  .content{
+    width: 100%;
+    height: calc(100% - 190px);
+    display: flex;
+    .method-content{
+      width: 400px;
+    }
+    .host-content{
+      flex: 1;
+      overflow-y: auto;
+    }
+  }
 }
 </style>
 

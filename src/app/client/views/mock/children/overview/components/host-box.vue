@@ -10,12 +10,13 @@
           :title='online === 1 ? "online" : "offline"'
           :trueValue='1'
           :falseValue='0' />
-        <span class='host-name'>[{{host.name}}]</span>
-        <span class='host-url'>{{host.protocolName}}://{{host.host}}{{host.path}}/...</span>
-        <i style='flex: 1;' />
+        <span class='host-name' @click.stop='showApi()'>[{{host.name}}]</span>
+        <span class='host-url' @click.stop='showApi()'>{{host.protocolName}}://{{host.host}}{{host.path}}/...</span>
+        <i style='flex: 1;' @click.stop='showApi()' />
         <Button
           class='btn test-btn'
           title='测试该「域名/路径」下的所有 api'
+          @click.stop='testAllApi(host)'
           type='text'>
           TEST
         </Button>
@@ -23,7 +24,7 @@
           :class='["btn", apiVisible ? "turn-right" : ""]'
           icon='ios-arrow-down'
           type='text'
-          @click='showApi()' />
+          @click.stop='showApi()' />
       </p>
       <div class='api-list' :style='`height: ${apiContentHeihgt}px`'>
         <div v-if='apis.length === 0' class='empty-holder'>
@@ -73,7 +74,7 @@ export default {
   },
   computed: {
     apiContentHeihgt() {
-      const apiItmHeight = 94
+      const apiItmHeight = 96
       const holderHeight = 64
       const apiHeight = this.apis.length * apiItmHeight
       if (this.apiVisible) {
@@ -114,9 +115,8 @@ export default {
   },
   mounted() {},
   methods: {
-    fetchApis() {
-      // const { id } = this.host
-
+    testAllApi(host) {
+      console.log(host)
     },
     showApi() {
       this.apiVisible = !this.apiVisible

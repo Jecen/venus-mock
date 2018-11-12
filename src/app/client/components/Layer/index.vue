@@ -3,13 +3,8 @@
     <Header>
       <div class='layout-logo'>Venus Mock</div>
     </Header>
-    <Content :style='{height: "max-content"}'>
-      <Breadcrumb class='breadcrumb'>
-        <BreadcrumbItem to='/'>Home</BreadcrumbItem>
-        <BreadcrumbItem to='/components/breadcrumb'>Components</BreadcrumbItem>
-        <BreadcrumbItem>Breadcrumb</BreadcrumbItem>
-      </Breadcrumb>
-      <div style='width:100%;height:100%;padding:20px;'>
+    <Content :style='{height: "calc(100% - 133px)"}'>
+      <div style='width:100%;height:100%;padding:20px 20px 0;'>
         <slot />
       </div>
     </Content>
@@ -21,15 +16,15 @@
 export default {
   name: 'Layer',
   mounted() {
-    console.log(this.$route, this.$store)
   },
 }
 </script>
 
 <style lang="scss" scoped>
 .layout{
+  min-width: 1200px;
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
   .layout-footer-center{
     text-align: center;
   }
