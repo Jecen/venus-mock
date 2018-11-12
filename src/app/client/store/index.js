@@ -5,7 +5,7 @@ import Vuex from 'vuex'
 // 模块通常以页面为维度组织
 // 公用数据可以单独放在一个公用模块中
 
-import  * as modules from './modules/*.js'
+import  * as modules from './modules/*/index.js'
 
 Vue.use(Vuex)
 

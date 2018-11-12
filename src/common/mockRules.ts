@@ -50,7 +50,8 @@ async function  generateRules() {
       const apis = await sqlTask(apiSql);
       for (const api of apis) {
         const methodSql = dbHelper.getQuerySQL('methods', [
-          { type: queryType.eq, key: 'apiId', value: api.id }, // 查询全部 online 的 host
+          { type: queryType.eq, key: 'apiId', value: api.id },
+          { type: queryType.eq, key: 'disable', value: 0 }, // 查询全部 没有disable 的 method
         ]);
         const methods = await sqlTask(methodSql);
         methods.forEach((m) => {

@@ -55,7 +55,8 @@ const checkParams = (params: any, list: any[] = []): any => {
   for (const i in params) {
     if (list.indexOf(i) > -1) {
       checkDist = params[i];
-      if (!checkDist || typeof checkDist === 'string' && !checkDist.length) {
+      console.log(i, checkDist);
+      if ((!checkDist && checkDist !== 0) || typeof checkDist === 'string' && !checkDist.length) {
         rst.message = `${i} is empty`;
         return rst;
       }

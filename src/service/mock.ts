@@ -294,7 +294,9 @@ class MockService {
 			    hostId      INT       NOT NULL,
 				  apiId       INT       NOT NULL,
 			    name        VARCHAR   NOT NULL,
-				  method      INT       NOT NULL,
+          method      INT       NOT NULL,
+          disable     INT       NOT NULL
+                                DEFAULT (0),
 				  result      VARCHAR,
 			    crDate      TIMESTAMP NOT NULL
 								                DEFAULT (CURRENT_TIMESTAMP)

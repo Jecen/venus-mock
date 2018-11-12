@@ -1,7 +1,7 @@
 import Handler from './Handler';
-import { Param } from '../interface';
 import ParamHandler from './ParamHandler';
-
+import * as MockModule from '../common/MockRules';
+const mockModule: any = MockModule;
 class MethodHandler extends Handler{
   constructor() {
     super();
@@ -95,6 +95,7 @@ class MethodHandler extends Handler{
         const success = await this.run(sql, [apiId, name, method, result, projectId, hostId]);
         if (success) {
           resolve();
+          mockModule.update();
         } else {
           reject('新增失败');
         }
@@ -123,6 +124,7 @@ class MethodHandler extends Handler{
         const success = await this.run(sql, [name, method, result , id]);
         if (success) {
           resolve();
+          mockModule.update();
         } else {
           reject('修改失败');
         }
@@ -192,6 +194,7 @@ class MethodHandler extends Handler{
         const success = await this.run(sql, [id]);
         if (success) {
           resolve();
+          mockModule.update();
         } else {
           reject('删除失败');
         }

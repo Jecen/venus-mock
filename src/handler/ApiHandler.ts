@@ -1,5 +1,6 @@
 import Handler from './Handler';
-
+import * as MockModule from '../common/MockRules';
+const mockModule: any = MockModule;
 class ApiHandler extends Handler{
   constructor() {
     super();
@@ -79,6 +80,7 @@ class ApiHandler extends Handler{
         const success = await this.run(sql, [hostId, name, url, type, projectId]);
         if (success) {
           resolve();
+          mockModule.update();
         } else {
           reject('新增失败');
         }
@@ -107,6 +109,7 @@ class ApiHandler extends Handler{
         const success = await this.run(sql, [name, url, type, id]);
         if (success) {
           resolve();
+          mockModule.update();
         } else {
           reject('修改失败');
         }
@@ -183,6 +186,7 @@ class ApiHandler extends Handler{
         const success = await this.run(sql, [id]);
         if (success) {
           resolve();
+          mockModule.update();
         } else {
           reject('删除失败');
         }

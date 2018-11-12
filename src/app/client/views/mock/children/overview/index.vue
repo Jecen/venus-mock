@@ -1,7 +1,13 @@
 <template>
   <div class='page host-page'>
     <project-info :info='project' />
-    <host-box v-for='h in hosts' :key='h.id' :host='h' />
+    <host-box
+      v-for='h in hosts'
+      :key='h.id'
+      :host='h'
+      :apis='apiMap[h.id] || []'
+      @apiVisible='(v) => fetchApis(h, v)'
+      @update='fetchList()' />
   </div>
 </template>
 
@@ -17,6 +23,7 @@ export default {
   data() {
     return {
       project: '',
+      hosts: [],
       hostColumn: [
         {
           type: 'index',
@@ -50,43 +57,28 @@ export default {
           width: 70,
         },
       ],
+      apiMap: {},
     }
   },
   computed: {
-    hosts() {
-      return this.$store.getters['mock/hosts']
-    },
   },
   mounted() {
-    this.fetchList()
-    this.getProjectInfo()
-
-    //! test
-    this.$store.dispatch('mock/getMethodList')
-    this.$store.dispatch('common/getDict', { name: 'method' })
+    const { projectId: id } = this.$route.params
+    this.$store.dispatch('mock/getOverViewDate', { id })
+      .then(({ project, host: hosts }) => {
+        this.project = project
+        this.hosts = hosts
+      })
   },
   methods: {
-    async getProjectInfo() {
-      const { projectId: id } = this.$route.params
-      try {
-        const rst = await this.$store.dispatch('mock/getProjectById', { id })
-        this.project = rst.data
-      } catch (error) {
-        console.log(error)
+    async fetchApis(h, v) {
+      if (v) {
+        const apis = await this.$store.dispatch('mock/getHostOverviewData', { id: h.id })
+        this.apiMap = {
+          ...this.apiMap,
+          [h.id]: apis,
+        }
       }
-    },
-    fetchList() {
-      const { projectId: id } = this.$route.params
-      const parmas = {
-        id,
-      }
-      this.$store.dispatch('mock/getHostList', parmas)
-        .then(({ data: { list }}) => {
-          console.log(list)
-        })
-        .catch(e => {
-          console.log(e)
-        })
     },
   },
 }

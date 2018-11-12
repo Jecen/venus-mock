@@ -5,7 +5,8 @@ const mockHandler = async (ctx, next) => {
   const rule:any = service.matchRule(host, url, method);
   if (rule) {
     response = await mockService.getResponse(rule, ctx);
-    ctx.app.mock.emit('mock', JSON.stringify(response));
+    const mockIo = ctx.app.mock.socket;
+    mockIo.emit('mock', JSON.stringify(response));
   }
 
   ctx.set({

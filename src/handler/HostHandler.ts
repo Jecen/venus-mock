@@ -1,5 +1,6 @@
 import Handler from './Handler';
-
+import * as MockModule from '../common/MockRules';
+const mockModule: any = MockModule;
 class HostHandler extends Handler{
   constructor() {
     super();
@@ -79,6 +80,7 @@ class HostHandler extends Handler{
       if (checkRst.pass) {
         const success = await this.run(sql, [name, host, path, protocol, online, projectId]);
         if (success) {
+          mockModule.update();
           resolve();
         } else {
           reject('新增失败');
@@ -107,6 +109,7 @@ class HostHandler extends Handler{
       if (checkRst.pass) {
         const success = await this.run(sql, [name, host, path, protocol, online, id]);
         if (success) {
+          mockModule.update();
           resolve();
         } else {
           reject('修改失败');
@@ -190,6 +193,7 @@ class HostHandler extends Handler{
       try {
         const success = await this.run(sql, [id]);
         if (success) {
+          mockModule.update();
           resolve();
         } else {
           reject('删除失败');
