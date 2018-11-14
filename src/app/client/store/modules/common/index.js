@@ -20,7 +20,10 @@ const actions = {
 
 const mutations = {
   saveDict(state, dict) {
-    state.dicts[dict.dictName] = dict
+    state.dicts = Object.assign({}, {
+      ...state.dicts,
+      [dict.dictName]: dict,
+    })
   },
 }
 

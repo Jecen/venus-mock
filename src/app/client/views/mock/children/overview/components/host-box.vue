@@ -10,16 +10,35 @@
           :title='online === 1 ? "online" : "offline"'
           :trueValue='1'
           :falseValue='0' />
-        <span class='host-name' @click.stop='showApi()'>[{{host.name}}]</span>
+        <Button
+          class='host-name'
+          :title='`[${host.name}]`'
+          @click.stop='$emit("edit", host)'
+          type='text'>
+          [{{host.name}}]
+        </Button>
         <span class='host-url' @click.stop='showApi()'>{{host.protocolName}}://{{host.host}}{{host.path}}/...</span>
         <i style='flex: 1;' @click.stop='showApi()' />
-        <Button
-          class='btn test-btn'
-          title='测试该「域名/路径」下的所有 api'
-          @click.stop='testAllApi(host)'
-          type='text'>
-          TEST
-        </Button>
+        <Tooltip content='测试该「域名/路径」下的所有 api'>
+          <Button
+            class='btn test-btn'
+            title='测试该「域名/路径」下的所有 api'
+            @click.stop='testAllApi(host)'
+            type='text'>
+            TEST
+          </Button>
+        </Tooltip>
+        <Poptip
+          confirm
+          title='确定删除?'
+          @on-ok='$emit("del")'>
+          <Button
+            class='btn test-btn'
+            type='text'>
+            DEL
+          </Button>
+        </Poptip>
+
         <Button
           :class='["btn", apiVisible ? "turn-right" : ""]'
           icon='ios-arrow-down'
@@ -34,6 +53,7 @@
           <api-item
             class='api-itm'
             v-for='api in apis'
+            :insertFrom='insertFrom'
             :host='host'
             :api='api'
             :key='api.id' />
@@ -43,6 +63,11 @@
     <div v-else class='info-wrapper holder'>
       <p class='host-title holder-item' />
     </div>
+    <Icon
+      v-if='false'
+      class='close-btn'
+      @click='$emit("del")'
+      type='md-close-circle' />
   </div>
 </template>
 
@@ -62,6 +87,10 @@ export default {
       type: Array,
       default: () => ([]),
     },
+    insertFrom: {
+      type: Object,
+      default: null,
+    },
   },
   data() {
     return {
@@ -76,7 +105,8 @@ export default {
     apiContentHeihgt() {
       const apiItmHeight = 96
       const holderHeight = 64
-      const apiHeight = this.apis.length * apiItmHeight
+      const insertBtnHeight = 0
+      const apiHeight = this.apis.length * apiItmHeight + insertBtnHeight
       if (this.apiVisible) {
         if (this.isFetchApis) {
           return 0
@@ -127,6 +157,7 @@ export default {
 
 <style lang="scss" scoped>
 .host-box{
+  position: relative;
   padding: 14px;
   text-align: left;
   background-color: #fff;
@@ -154,6 +185,11 @@ export default {
         font-weight: 600;
         margin-right: 10px;
         color: #17233d;
+        padding: 0;
+        background: transparent;
+        &:hover{
+          color: #2d8cf0;
+        }
       }
       .host-url{
         font-size: 16px;
@@ -205,10 +241,29 @@ export default {
         .api-itm{
           margin-top: 14px;
         }
+        .add-holder{
+          margin-top: 14px;
+          width: 100%;
+          height: 40px;
+          background-color: #91d5ff;
+          border-radius: 4px;
+          color: #fff;
+          text-align: center;
+          font-size: 14px;
+        }
       }
     }
   }
-
+  .close-btn{
+    position: absolute;
+    top: 6px;
+    right: 7px;
+    color: #ed4014;
+    background-color: #fff;
+    border-radius: 100%;
+    font-size: 18px;
+    cursor: pointer;
+  }
   .holder-item{
     background-color: #e7e8e9;
   }

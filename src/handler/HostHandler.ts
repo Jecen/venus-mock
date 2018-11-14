@@ -97,14 +97,14 @@ class HostHandler extends Handler{
    */
   public async update(params: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
-      const { id, name, host, path, protocol, online } = params;
+      const { id, name, host, path = '', protocol, online = 1 } = params;
 
       const sql = `
         UPDATE hosts
         SET (name, host, path, protocol, online) = (?, ?, ?, ?, ?)
         WHERE id = ?
       `;
-      const paramKeys = ['name', 'host', 'path', 'protocol', 'online'];
+      const paramKeys = ['name', 'host', 'protocol'];
       const checkRst = this.checkParams(params, paramKeys);
       if (checkRst.pass) {
         const success = await this.run(sql, [name, host, path, protocol, online, id]);

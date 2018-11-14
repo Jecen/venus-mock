@@ -261,7 +261,7 @@ class MockService {
 			    name        VARCHAR   NOT NULL,
 			    host        VARCHAR   NOT NULL,
 			    path        VARCHAR,
-			    protocol    VARCHAR   NOT NULL,
+			    protocol    INT       NOT NULL,
 				  online      BOOLEAN   NOT NULL
 									              DEFAULT (0),
 			    crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)

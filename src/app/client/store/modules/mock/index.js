@@ -46,13 +46,16 @@ const actions = {
   async getHostOverviewData({ state }, payload) {// eslint-disable-line
     const { id: hostId } = payload
     const { list: apiList } = await apiFunc[apiApi.FETCH_API_LIST]({ id: hostId })
-    const rstApis = []
-    apiList.forEach(async (api) => {
-      const { list: methods } = await apiFunc[methodApi.FETCH_METHOD_LIST]({ id: api.id })
-      rstApis.push({
-        ...api,
+    const actions = []
+    apiList.forEach((api) => {
+      actions.push(apiFunc[methodApi.FETCH_METHOD_LIST]({ id: api.id }))
+    })
+    const methodArray = await Promise.all(actions)
+    const rstApis = methodArray.map(({ list: methods }, index) => {
+      return {
+        ...apiList[index],
         methods,
-      })
+      }
     })
     return rstApis
   },

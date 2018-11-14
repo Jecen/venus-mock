@@ -9,7 +9,7 @@
     "postdist": "cd ./src/app && npm run copy",
     "devServer": "nodemon",
     "devClient": "cd ./src/app && npm run dev",
-    "dev": "nodemon",
+    "dev": "npm run devServer & npm run devClient",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

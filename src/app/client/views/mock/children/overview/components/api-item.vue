@@ -9,7 +9,7 @@
         type='button'>
         <Radio v-for='opt in typeDict.options' :key='opt.id' :label='opt.id'>{{opt.name}}</Radio>
       </RadioGroup>
-      <span class='url'>{{host.protocolName}}://{{host.host}}{{host.path}}{{api.url}}</span>
+      <span class='url' @click='copyUrl'>{{host.protocolName}}://{{host.host}}{{host.path}}{{api.url}}</span>
     </p>
     <p class='method-box'>
       <span class='des'>Method: </span>
@@ -26,10 +26,23 @@
         size='small'
         icon='md-add-circle'
         ghost
+        @click='addMethod'
         type='text' />
       <i style='flex: 1;' />
       <span class='api-date'>{{api.crDate}}</span>
     </p>
+    <Button
+      v-if='api.methods.length === 0'
+      class='del-btn'
+      size='small'
+      icon='md-trash'
+      shape='circle'
+      type='text' />
+    <input
+      type='text'
+      style='position: absolute; opacity:0;z-index: -1;'
+      ref='copy-holder'
+      :value='`${host.protocolName}://${host.host}${host.path}${api.url}`'>
   </div>
 </template>
 
@@ -42,6 +55,10 @@ export default {
       default: null,
     },
     api: {
+      type: Object,
+      default: null,
+    },
+    insertFrom: {
       type: Object,
       default: null,
     },
@@ -65,23 +82,35 @@ export default {
     this.$store.dispatch('common/getDict', { name: 'mockType' })
   },
   methods: {
+    copyUrl() {
+      const holder = this.$refs['copy-holder']
+      holder.select()
+      document.execCommand('Copy')
+      this.$Message.success('已复制链接')
+    },
+    addMethod() {
+      this.insertFrom && this.insertFrom.show()
+    },
   },
 }
 </script>
 
 <style lang="scss" scoped>
 .api-item{
+  position: relative;
   width: 100%;
   height: 80px;
   border-radius: 4px;
   border: 1px solid #2d8cf0;
   padding: 6px 16px;
   transition: all .3s ease;
+  user-select: none;
   .api-name{
     height: 30px;
     line-height: 30px;
     font-size: 16px;
     font-weight: 500;
+
     .radio{
       margin-left: 20px;
       & /deep/ label{
@@ -100,6 +129,7 @@ export default {
       font-size: 14px;
       font-style: italic;
       text-decoration: underline;
+      cursor: pointer;
     }
     .api-date{
       float: right;
@@ -144,6 +174,14 @@ export default {
         color: #2d8cf0;
       }
     }
+  }
+  .del-btn{
+    position: absolute;
+    right: 3px;
+    top: -10px;
+    font-size: 14px;
+    color: #fff;
+    background: #ed4014;
   }
 }
 </style>

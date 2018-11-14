@@ -22,7 +22,6 @@ export default {
 
 <style lang="scss" scoped>
 .layout{
-  min-width: 1200px;
   height: 100%;
   overflow: auto;
   .layout-footer-center{
