@@ -42,18 +42,21 @@ async function  generateRules() {
     const mockTypeDict = await getDict('mockType');
 
     const hosts = await sqlTask(hostSql);
+
     for (const host of hosts) {
       const apiSql = dbHelper.getQuerySQL('apis', [
         { type: queryType.eq, key: 'hostId', value: host.id }, // 查询全部 online 的 host
         { type: queryType.eq, key: 'type', value: 7 }, // 查询全部 online 的 host
       ]);
       const apis = await sqlTask(apiSql);
+
       for (const api of apis) {
         const methodSql = dbHelper.getQuerySQL('methods', [
           { type: queryType.eq, key: 'apiId', value: api.id },
           { type: queryType.eq, key: 'disable', value: 0 }, // 查询全部 没有disable 的 method
         ]);
         const methods = await sqlTask(methodSql);
+        console.log(methods, '!!!');
         methods.forEach((m) => {
           const { method } = m;
           const { protocol, host: hostUrl, path } = host;
@@ -75,6 +78,7 @@ async function  generateRules() {
 
 module.exports = {
   *beforeSendRequest(req) {
+    console.log(proxyRules);
     for (const rule of proxyRules) {
       if (req.url.indexOf(rule.url) === 0
         && rule.method === req.requestOptions.method) {

@@ -309,6 +309,9 @@ class MockService {
           id          INTEGER   PRIMARY KEY AUTOINCREMENT
                                 NOT NULL
                                 UNIQUE,
+          projectId   INT       NOT NULL,
+			    hostId      INT       NOT NULL,
+				  apiId       INT       NOT NULL,
           methodId    INT       NOT NULL,
           key         VARCHAR   NOT NULL,
           name        VARCHAR   NOT NULL,

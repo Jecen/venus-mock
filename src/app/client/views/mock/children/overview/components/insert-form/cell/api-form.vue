@@ -1,8 +1,8 @@
 <template>
- <div class='cell api-form'>
+  <div class='cell api-form'>
     <p class='form-title'>Api</p>
     <Form
-      ref='formCustom'
+      ref='apiForm'
       :model='apiFeild'
       :rules='apiRule'
       :label-width='80'>
@@ -11,7 +11,7 @@
           <Col span='6'>
             <Input
               type='text'
-              clearable
+              :clearable='!disabled'
               placeholder='请输入名称'
               :disabled='disabled'
               @input='$emit("update", apiFeild)'
@@ -53,6 +53,7 @@
               :disabled='disabled'
               placeholder='请输入路径'
               type='text'
+              :clearable='!disabled'
               @input='$emit("update", apiFeild)'
               v-model='apiFeild.url'>
               <span class='host-url' slot='prepend'>{{protocolDict[host.protocol] || "http"}}://{{host.host || "[host]"}}{{host.path || "/[path]"}}</span>
@@ -176,6 +177,17 @@ export default {
         this.$emit('update', this.apiFeild)
       }, 0)
     },
+    getData() {
+      return new Promise((resolve, reject) => {
+        this.$refs.apiForm.validate((success) => {
+          if (success) {
+            resolve({ ...this.apiFeild })
+          } else {
+            reject()
+          }
+        })
+      })
+    },
   },
 }
 </script>
@@ -183,6 +195,11 @@ export default {
 <style lang="scss" scoped>
 .api-form{
   padding-top: 16px;
+  border-bottom: 1px dashed #e5e6e6;
+  .form-title{
+    font-size: 16px;
+    font-weight: 500;
+  }
   .host-url{
     font-style: italic;
     font-size: 14px;

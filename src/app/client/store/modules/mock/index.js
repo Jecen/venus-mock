@@ -15,6 +15,9 @@ const actions = {
   updateHost({ state }, payload) { // eslint-disable-line
     return apiFunc[hostApi.UPDATE_HOST](payload)
   },
+  delHost({ state }, payload) { // eslint-disable-line
+    return apiFunc[hostApi.DEL_HOST](payload)
+  },
   getHostList({ commit }, payload) {
     return apiFunc[hostApi.FETCH_HOST_LIST](payload, (data) => {
       const { list } = data
@@ -68,6 +71,63 @@ const actions = {
     const hosts = await apiFunc[hostApi.FETCH_HOST_LIST]({ id: projectId, size: 100 })
     rst['host'] = hosts.list
     return rst
+  },
+
+  async addMockRule({ state }, payload) {// eslint-disable-line
+    const { id: projectId, host, api, method } = payload
+    let rollBackHostId = ''
+    let rollBackApiId = ''
+    const rollBackMethods = []
+    const rollBackParams = []
+    try {
+      const { id: hostId } = host.id ? host : await apiFunc[hostApi.INSERT_HOST]({
+        ...host,
+        projectId,
+      })
+      rollBackHostId = hostId
+      const { id: apiId } = api.id ? api : await apiFunc[apiApi.INSERT_API]({
+        ...api,
+        projectId,
+        hostId,
+      })
+      rollBackApiId = apiId
+      await Object.keys(method).forEach(async (key) => {
+
+        const m = method[key]
+        if (m.name) {
+          const { params } = m
+          const { id: methodId } = m.id ? m : await apiFunc[methodApi.INSERT_METHOD]({
+            ...m,
+            projectId,
+            hostId,
+            apiId,
+          })
+          rollBackMethods.push(methodId)
+          if (m.id) {
+            await params.forEach(async (p) => {
+              const { id: paramId } = await apiFunc[paramApi.INSERT_PARAM]({
+                ...p,
+                projectId,
+                hostId,
+                apiId,
+                methodId,
+              })
+              rollBackParams.push(paramId)
+            })
+          }
+        }
+      })
+    } catch (error) {
+      rollBackParams.length > 0 && await rollBackParams.forEach(async (id) => {
+        await apiFunc[paramApi.DEL_PARAM]({ id })
+      })
+      rollBackMethods.length > 0 && await rollBackMethods.forEach(async (id) => {
+        await apiFunc[methodApi.DEL_METHOD]({ id })
+      })
+      rollBackApiId && await apiFunc[apiApi.DEL_API]({ id: rollBackApiId })
+      rollBackHostId && await apiFunc[hostApi.DEL_HOST]({ id: rollBackHostId })
+      console.log(error)
+    }
   },
 }
 

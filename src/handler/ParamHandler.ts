@@ -57,22 +57,25 @@ class ParamHandler extends Handler{
    */
   public async insert(params: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
-      const { methodId, key, name, type, info, mandatory } = params;
+      const { methodId, key, name, type, info, mandatory, projectId, hostId, apiId } = params;
       const sql = `
-        INSERT INTO params( methodId, key, name, type, info, mandatory )
-        VALUES(?, ?, ?, ?, ?, ?)
+        INSERT INTO params( methodId, key, name, type, info, mandatory, projectId, hostId, apiId )
+        VALUES(?, ?, ?, ?, ?, ?, ? ,?, ?)
       `;
 
       const checkRst = this.checkParams(
         params,
-        ['methodId', 'key', 'name', 'type', 'info', 'mandatory'],
+        ['methodId', 'key', 'name', 'type', 'info', 'mandatory',  'projectId', 'hostId', 'apiId'],
        );
 
       if (checkRst.pass) {
-        const success = await this.run(sql, [methodId, key, name, type, info, mandatory]);
-        if (success) {
-          resolve();
+        const data =
+          await this.run(sql,
+                         [methodId, key, name, type, info, mandatory, projectId, hostId, apiId],
+                         );
+        if (data) {
           mockModule.update();
+          resolve({ id: data.lastID });
         } else {
           reject('新增失败');
         }
@@ -98,10 +101,10 @@ class ParamHandler extends Handler{
       const paramKeys = ['key', 'name', 'type', 'info', 'mandatory'];
       const checkRst = this.checkParams(params, paramKeys);
       if (checkRst.pass) {
-        const success = await this.run(sql, [key, name, type, info, mandatory, id]);
-        if (success) {
-          resolve();
+        const data = await this.run(sql, [key, name, type, info, mandatory, id]);
+        if (data) {
           mockModule.update();
+          resolve({ id: data.lastID });
         } else {
           reject('修改失败');
         }
@@ -145,10 +148,10 @@ class ParamHandler extends Handler{
         WHERE id = ?;
       `;
       try {
-        const success = await this.run(sql, [id]);
-        if (success) {
-          resolve();
+        const data = await this.run(sql, [id]);
+        if (data) {
           mockModule.update();
+          resolve({ id: data.lastID });
         } else {
           reject('删除失败');
         }

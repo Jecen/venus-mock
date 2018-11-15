@@ -2,7 +2,7 @@
   <div class='cell host-form'>
     <p class='form-title'>Host</p>
     <Form
-      ref='formCustom'
+      ref='hostForm'
       :model='hostFeild'
       :rules='hostRule'
       :label-width='80'>
@@ -11,7 +11,7 @@
           <Col span='6'>
             <Input
               type='text'
-              clearable
+              :clearable='!disabled'
               placeholder='请输入名称'
               :disabled='disabled'
               @input='$emit("update", hostFeild)'
@@ -43,6 +43,7 @@
         <Col span='8'>
           <FormItem label='域名' prop='host'>
             <Input
+              :clearable='!disabled'
               type='text'
               :disabled='disabled'
               placeholder='请输入域名'
@@ -56,6 +57,7 @@
               :disabled='disabled'
               placeholder='请输入路径'
               type='text'
+              :clearable='!disabled'
               @input='$emit("update", hostFeild)'
               v-model='hostFeild.path'></Input>
           </FormItem>
@@ -109,7 +111,7 @@ export default {
               callback()
             }
           },
-          trigger: 'blur',
+          trigger: 'change',
           },
         ],
         host: [
@@ -120,7 +122,7 @@ export default {
               callback()
             }
           },
-          trigger: 'blur',
+          trigger: 'change',
           },
         ],
         path: [
@@ -135,7 +137,7 @@ export default {
               }
             }
           },
-          trigger: 'blur',
+          trigger: 'change',
           },
         ],
       },
@@ -155,6 +157,7 @@ export default {
       if (val || val === 0) {
         const index = _.findIndex(this.hosts, { id: parseInt(val) })
         if (index > -1) {
+          this.$refs.hostForm.resetFields()
           this.initData(this.hosts[index])
         } else {
           this.initData(null)
@@ -188,6 +191,17 @@ export default {
         this.$emit('update', this.hostFeild)
       }, 0)
     },
+    getData() {
+      return new Promise((resolve, reject) => {
+        this.$refs.hostForm.validate((success) => {
+          if (success) {
+            resolve(this.hostFeild)
+          } else {
+            reject()
+          }
+        })
+      })
+    },
   },
 }
 </script>
@@ -200,7 +214,6 @@ export default {
     font-size: 16px;
     font-weight: 500;
   }
-
 }
 </style>
 

@@ -79,10 +79,10 @@ class MethodHandler extends Handler{
    */
   public async insert(params: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
-      const { apiId, name, method, result, projectId, hostId } = params;
+      const { apiId, name, method, result, projectId, hostId, disable = 0 } = params;
       const sql = `
-        INSERT INTO methods( apiId, name, method, result, projectId, hostId )
-        VALUES(?, ?, ?, ?, ?, ?)
+        INSERT INTO methods( apiId, name, method, result, projectId, hostId, disable )
+        VALUES(?, ?, ?, ?, ?, ?, ?)
       `;
 
       const checkRst = this.checkParams(
@@ -91,10 +91,10 @@ class MethodHandler extends Handler{
        );
 
       if (checkRst.pass) {
-        const success = await this.run(sql, [apiId, name, method, result, projectId, hostId]);
-        if (success) {
-          resolve();
+        const data = await this.run(sql, [apiId, name, method, result, projectId, hostId, disable]);
+        if (data) {
           mockModule.update();
+          resolve({ id: data.lastID });
         } else {
           reject('新增失败');
         }
@@ -120,10 +120,10 @@ class MethodHandler extends Handler{
       const paramKeys = ['name', 'method', 'result'];
       const checkRst = this.checkParams(params, paramKeys);
       if (checkRst.pass) {
-        const success = await this.run(sql, [name, method, result , id]);
-        if (success) {
-          resolve();
+        const data = await this.run(sql, [name, method, result , id]);
+        if (data) {
           mockModule.update();
+          resolve({ id: data.lastID });
         } else {
           reject('修改失败');
         }
@@ -189,11 +189,15 @@ class MethodHandler extends Handler{
         DELETE FROM methods
         WHERE id = ?;
       `;
+      const extra = ['params'];
       try {
-        const success = await this.run(sql, [id]);
-        if (success) {
-          resolve();
+        await extra.forEach(async table => await this.run(
+          `DELETE FROM ${table} WHERE methodId = ${id}`,
+        ));
+        const data = await this.run(sql, [id]);
+        if (data) {
           mockModule.update();
+          resolve({ id: data.lastID });
         } else {
           reject('删除失败');
         }

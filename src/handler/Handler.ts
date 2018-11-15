@@ -96,11 +96,8 @@ abstract class Handler {
    */
   public run(sql: string, params:any[] = []): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.dataBase.run(sql, params, (err, data) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(true);
+      this.dataBase.run(sql, params, function () {
+        resolve(this);
       });
     });
   }

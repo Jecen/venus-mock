@@ -15,6 +15,7 @@
           :apis='apiMap[h.id] || []'
           :insertFrom='$refs["insertFrom"]'
           @edit='editHost(h)'
+          @del='delHost(h)'
           @apiVisible='(v) => fetchApis(h, v)'
           @update='getData()' />
       </Col>
@@ -39,6 +40,7 @@
     <insert-form
       ref='insertFrom'
       :hosts='hosts'
+      :projectId='$route.params.projectId'
       v-model='drawerVisible' />
     <Modal
       class='host-modal'
@@ -167,6 +169,7 @@ export default {
     this.getData()
     this.$store.dispatch('common/getDict', { name: 'mockType' })
     this.$store.dispatch('common/getDict', { name: 'protocol' })
+    this.$store.dispatch('common/getDict', { name: 'paramsType' })
   },
   methods: {
     async getData() {
@@ -191,6 +194,10 @@ export default {
         protocol: parseInt(host.protocol),
         fullPath: `${host.host}${host.path}`,
       }
+    },
+    async delHost({ id }) {
+      await this.$store.dispatch('mock/delHost', { id })
+      this.getData()
     },
     submitHost() {
       const { id, name, fullPath, protocol } = this.hostFeild

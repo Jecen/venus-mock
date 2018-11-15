@@ -77,10 +77,10 @@ class ApiHandler extends Handler{
        );
 
       if (checkRst.pass) {
-        const success = await this.run(sql, [hostId, name, url, type, projectId]);
-        if (success) {
-          resolve();
+        const data = await this.run(sql, [hostId, name, url, type, projectId]);
+        if (data) {
           mockModule.update();
+          resolve({ id: data.lastID });
         } else {
           reject('新增失败');
         }
@@ -106,10 +106,10 @@ class ApiHandler extends Handler{
       const paramKeys = ['name', 'url', 'type'];
       const checkRst = this.checkParams(params, paramKeys);
       if (checkRst.pass) {
-        const success = await this.run(sql, [name, url, type, id]);
-        if (success) {
-          resolve();
+        const data = await this.run(sql, [name, url, type, id]);
+        if (data) {
           mockModule.update();
+          resolve({ id: data.lastID });
         } else {
           reject('修改失败');
         }
@@ -182,11 +182,15 @@ class ApiHandler extends Handler{
         DELETE FROM apis
         WHERE id = ?;
       `;
+      const extra = ['methods', 'params'];
       try {
-        const success = await this.run(sql, [id]);
-        if (success) {
-          resolve();
+        await extra.forEach(async table => await this.run(
+          `DELETE FROM ${table} WHERE apiId = ${id}`,
+        ));
+        const data = await this.run(sql, [id]);
+        if (data) {
           mockModule.update();
+          resolve({ id: data.lastID });
         } else {
           reject('删除失败');
         }

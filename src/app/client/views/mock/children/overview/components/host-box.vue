@@ -31,7 +31,7 @@
         <Poptip
           confirm
           title='确定删除?'
-          @on-ok='$emit("del")'>
+          @on-ok='$emit("del", host)'>
           <Button
             class='btn test-btn'
             type='text'>

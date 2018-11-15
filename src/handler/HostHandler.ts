@@ -78,10 +78,10 @@ class HostHandler extends Handler{
        );
 
       if (checkRst.pass) {
-        const success = await this.run(sql, [name, host, path, protocol, online, projectId]);
-        if (success) {
+        const data = await this.run(sql, [name, host, path, protocol, online, projectId]);
+        if (data) {
           mockModule.update();
-          resolve();
+          resolve({ id: data.lastID });
         } else {
           reject('新增失败');
         }
@@ -107,10 +107,10 @@ class HostHandler extends Handler{
       const paramKeys = ['name', 'host', 'protocol'];
       const checkRst = this.checkParams(params, paramKeys);
       if (checkRst.pass) {
-        const success = await this.run(sql, [name, host, path, protocol, online, id]);
-        if (success) {
+        const data = await this.run(sql, [name, host, path, protocol, online, id]);
+        if (data) {
           mockModule.update();
-          resolve();
+          resolve({ id: data.lastID });
         } else {
           reject('修改失败');
         }
@@ -190,11 +190,15 @@ class HostHandler extends Handler{
         DELETE FROM hosts
         WHERE id = ?;
       `;
+      const extra = ['apis', 'methods', 'params'];
       try {
-        const success = await this.run(sql, [id]);
-        if (success) {
+        await extra.forEach(async table => await this.run(
+          `DELETE FROM ${table} WHERE hostId = ${id}`,
+        ));
+        const data = await this.run(sql, [id]);
+        if (data) {
           mockModule.update();
-          resolve();
+          resolve({ id: data.lastID });
         } else {
           reject('删除失败');
         }

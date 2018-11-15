@@ -1,5 +1,6 @@
 
 import Handler from './Handler';
+import HostHandler from './HostHandler';
 
 class ProjectHandler extends Handler{
   constructor() {
@@ -87,9 +88,9 @@ class ProjectHandler extends Handler{
       const checkRst = this.checkParams(params, ['name', 'description']);
 
       if (checkRst.pass) {
-        const success = await this.run(sql, [name, description, img]);
-        if (success) {
-          resolve();
+        const data = await this.run(sql, [name, description, img]);
+        if (data) {
+          resolve({ id: data.lastID });
         } else {
           reject('新增失败');
         }
@@ -179,9 +180,9 @@ class ProjectHandler extends Handler{
       const paramKeys = ['name', 'description'];
       const checkRst = this.checkParams(params, paramKeys);
       if (checkRst.pass) {
-        const success = await this.run(sql, [name, description, img, id]);
-        if (success) {
-          resolve();
+        const data = await this.run(sql, [name, description, img, id]);
+        if (data) {
+          resolve({ id: data.lastID });
         } else {
           reject('修改失败');
         }
@@ -202,10 +203,14 @@ class ProjectHandler extends Handler{
         DELETE FROM projects
         WHERE id = ${id}
       `;
+      const extra = ['hosts', 'apis', 'methods', 'params'];
       try {
-        const success = await this.run(sql);
-        if (success) {
-          resolve();
+        await extra.forEach(async table => await this.run(
+          `DELETE FROM ${table} WHERE projectId = ${id}`,
+        ));
+        const data = await this.run(sql);
+        if (data) {
+          resolve({ id: data.lastID });
         } else {
           reject('删除失败');
         }
