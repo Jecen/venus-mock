@@ -65,6 +65,9 @@
               <p v-if='!disabled' style='padding: 0 16px;'>
                 <Button type='primary' size='small' @click='showParamsModal()'>新增</Button>
               </p>
+              <p v-else style='padding: 0 16px;'>
+                暂无参数
+              </p>
             </div>
           </FormItem>
         </Col>

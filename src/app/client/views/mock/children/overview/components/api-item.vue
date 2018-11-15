@@ -88,8 +88,12 @@ export default {
       document.execCommand('Copy')
       this.$Message.success('已复制链接')
     },
-    addMethod() {
+    async addMethod() {
       this.insertFrom && this.insertFrom.show()
+      await this.insertFrom.initHost(this.host.id)
+      await this.insertFrom.initApi(this.api)
+
+      // await this.insertFrom.initApi(api.id)
     },
   },
 }

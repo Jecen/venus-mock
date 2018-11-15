@@ -66,6 +66,7 @@
               class='type-switch'
               v-model='apiFeild.type'
               size='large'
+              :disabled='disabled'
               @input='$emit("update", apiFeild)'
               :true-value='7'
               :false-value='8'>
@@ -187,6 +188,12 @@ export default {
           }
         })
       })
+    },
+    setCoverId(id) {
+      this.coverId = id
+      return new Promise((resolve) => setTimeout(() => {
+        resolve()
+      }, 100))
     },
   },
 }

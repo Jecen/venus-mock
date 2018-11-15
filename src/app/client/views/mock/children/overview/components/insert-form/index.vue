@@ -97,13 +97,19 @@ export default {
     dismiss() {
       this.$emit('dismiss')
     },
-    initHostForm(data) {
-      console.log(data)
+    async initHost(id) {
+      const apis = await this.$store.dispatch('mock/getHostOverviewData', { id: parseInt(id) })
+      this.apiMap = {
+        ...this.apiMap,
+        [id]: apis,
+      }
+      return this.$refs.host.setCoverId(id)
     },
-    initApiForm(data) {
-      console.log(data)
+    initApi(api) {
+      this.api = api
+      return this.$refs.api.setCoverId(api.id)
     },
-    initMethodForm(data) {
+    initMethod(data) {
       console.log(data)
     },
     methodChange(m) {

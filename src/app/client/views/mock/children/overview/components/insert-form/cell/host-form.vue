@@ -65,13 +65,13 @@
         <Col span='8'>
           <FormItem label='协议' prop='protocol'>
             <RadioGroup
-              :disabled='disabled'
               v-model='hostFeild.protocol'
               @input='$emit("update", hostFeild)'
               type='button'>
               <Radio
                 v-for='opt in protocolDict ? protocolDict.options : []'
                 :key='opt.id'
+                :disabled='disabled'
                 :value='opt.id'
                 :label='opt.id'>{{opt.name.toUpperCase()}}</Radio>
             </RadioGroup>
@@ -201,6 +201,13 @@ export default {
           }
         })
       })
+    },
+    setCoverId(id) {
+      this.coverData = id
+      return new Promise((resolve) => setTimeout(() => {
+        this.$emit('update', this.hostFeild)
+        resolve()
+      }, 0))
     },
   },
 }
