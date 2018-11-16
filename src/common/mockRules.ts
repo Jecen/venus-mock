@@ -56,7 +56,6 @@ async function  generateRules() {
           { type: queryType.eq, key: 'disable', value: 0 }, // 查询全部 没有disable 的 method
         ]);
         const methods = await sqlTask(methodSql);
-        console.log(methods, '!!!');
         methods.forEach((m) => {
           const { method } = m;
           const { protocol, host: hostUrl, path } = host;
@@ -77,8 +76,8 @@ async function  generateRules() {
 }
 
 module.exports = {
+  summary: 'Venus-Mock',
   *beforeSendRequest(req) {
-    console.log(proxyRules);
     for (const rule of proxyRules) {
       if (req.url.indexOf(rule.url) === 0
         && rule.method === req.requestOptions.method) {
@@ -86,15 +85,20 @@ module.exports = {
         newReqOptions.hostname = 'localhost';
         newReqOptions.port = appConfig.httpPort;
         newReqOptions.path = `/mockapi${newReqOptions.path}`;
+        newReqOptions.headers['prevProtocol'] = req.protocol;
         log.proxyLog(
           req.url,
           `//${newReqOptions.hostname}:${newReqOptions.port}${newReqOptions.path}`,
         );
         return {
+          protocol: 'http',
           requestOptions: newReqOptions,
         };
       }
     }
+  },
+  *beforeDealHttpsRequest() {
+    return true;
   },
   get rules() {
     return proxyRules;

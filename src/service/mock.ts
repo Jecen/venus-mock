@@ -366,13 +366,15 @@ class MockService {
    * @param path 路径
    * @param method 请求方法
    */
-  matchRule(trueHost: string, path: string, method: string): object {
+  matchRule(trueHost: string, path: string, method: string, protocol: string): object {
 
     let matchPath = path.indexOf('?') > -1 ? path.substr(0, path.indexOf('?')) : path;
     matchPath = matchPath.replace(config.proxyHandlePath, '');
     for (const rule of mockModule.rules) {
+      console.log(rule);
       const { host, api } = rule;
       if (
+        `${host.protocol === 1 ? 'http' : 'https'}` === protocol &&
         `${host.host}` === trueHost &&
         `${host.path}${api.url}` === matchPath &&
         method === rule.method

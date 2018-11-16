@@ -19,6 +19,8 @@ const app: Koa = new Koa();
 /** mock socket 实例 */
 const mockIo = new io(app, 'mock');
 
+const exec = require('child_process').exec;
+
 app.on('error', (err, ctx) => {
   log.sysError(err);
 });
@@ -41,6 +43,23 @@ const proxyOptions: any = require('./config/proxy').default;
 
 const proxyServer = new Proxy.ProxyServer(proxyOptions);
 proxyServer.on('ready', () => {
+  if (!Proxy.utils.certMgr.ifRootCAFileExists()) {
+    Proxy.utils.certMgr.generateRootCA((error, keyPath) => {
+      // let users to trust this CA before using proxy
+      if (!error) {
+        const certDir = require('path').dirname(keyPath);
+        console.log('The cert is generated at', certDir);
+        const isWin = /^win/.test(process.platform);
+        if (isWin) {
+          exec('start .', { cwd: certDir });
+        } else {
+          exec('open .', { cwd: certDir });
+        }
+      } else {
+        console.error('error when generating rootCA', error);
+      }
+    });
+  }
   log.sysInfo(
     `proxy webInterface ready at  http://localhost:${proxyOptions.webInterface.webPort}/`,
   );

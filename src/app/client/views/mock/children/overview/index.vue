@@ -165,7 +165,7 @@ export default {
       return this.$store.getters['common/dict']('protocol') || { options: [] }
     },
   },
-  mounted() {
+  created() {
     this.getData()
     this.$store.dispatch('common/getDict', { name: 'mockType' })
     this.$store.dispatch('common/getDict', { name: 'protocol' })

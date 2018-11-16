@@ -34,7 +34,6 @@ class ApiService {
         query,
         request: { method, body },
       } = ctx;
-      console.log(ctx.request.body, query);
       const args = method === 'GET' || method === 'DELETE' ? query : body;
       let res: object = {};
       let handler = null;

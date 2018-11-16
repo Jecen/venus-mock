@@ -103,18 +103,16 @@ const actions = {
             apiId,
           })
           rollBackMethods.push(methodId)
-          if (m.id) {
-            await params.forEach(async (p) => {
-              const { id: paramId } = await apiFunc[paramApi.INSERT_PARAM]({
-                ...p,
-                projectId,
-                hostId,
-                apiId,
-                methodId,
-              })
-              rollBackParams.push(paramId)
+          await params.forEach(async (p) => {
+            const { id: paramId } = await apiFunc[paramApi.INSERT_PARAM]({
+              ...p,
+              projectId,
+              hostId,
+              apiId,
+              methodId,
             })
-          }
+            rollBackParams.push(paramId)
+          })
         }
       })
     } catch (error) {

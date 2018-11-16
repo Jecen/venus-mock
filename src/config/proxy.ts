@@ -12,9 +12,9 @@ export default {
   // 限速设置 kb/s
   throttle: 1000,
   // 强制拦截https
-  forceProxyHttps: false,
+  // forceProxyHttps: true,
   // 屏蔽console输出
   silent: false,
   // 忽略证书错误
-  dangerouslyIgnoreUnauthorized: false,
+  dangerouslyIgnoreUnauthorized: true,
 };

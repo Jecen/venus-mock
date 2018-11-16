@@ -47,7 +47,7 @@ class ProjectHandler extends Handler{
         const mapFunc = (arr) => {
           const map = {};
           arr.forEach((r) => {
-            map[r.projectId] = r.COUNT;
+            map[r.projectId] = r ? r.COUNT : 0;
           });
           return map;
         };

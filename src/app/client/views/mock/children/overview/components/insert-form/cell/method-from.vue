@@ -344,8 +344,8 @@ export default {
       this.$refs['paramsForm'].validate((success) => {
         if (success) {
           const { index } = this.currentParams
+          const params = [...this.methodFeild[this.currentMethod].params]
           if (index > -1) {
-            const params = [...this.methodFeild[this.currentMethod].params]
             params[index] = Object.assign({}, this.currentParams)
             this.methodFeild = {
               ...this.methodFeild,
@@ -359,11 +359,12 @@ export default {
               ...this.methodFeild,
               [this.currentMethod]: {
                 ...this.methodFeild[this.currentMethod],
-                params: [Object.assign({}, this.currentParams)],
+                params: [...params, Object.assign({}, this.currentParams)],
               },
             }
             console.log(this.methodFeild)
           }
+          this.dismiss()
         }
       })
     },

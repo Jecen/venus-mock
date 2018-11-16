@@ -68,13 +68,14 @@ abstract class Handler {
    * @param key 查询字段名
    * @param ids id集合
    */
-  public recordTask (key: string, ids: number[]): Promise<any> {
+  public async recordTask (key: string, ids: number[]): Promise<any> {
     const sql: string = `
         SELECT ${key}, COUNT(*) as COUNT
         FROM records
         WHERE ${key} IN (${ids.join(', ')})
         GROUP BY ${key}`;
-    return this.task(sql);
+    const records = await this.task(sql);
+    return records.length > 0 ? records : [{ COUNT: 0 }];
   }
 
   /*
