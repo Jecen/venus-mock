@@ -143,10 +143,11 @@ export default {
       }
     },
   },
-  mounted() {},
   methods: {
     testAllApi(host) {
-      console.log(host)
+      const timeStamp = new Date().getTime()
+      this.$emit('testApi', timeStamp)
+      this.$mockSocket.sendMessage('testHostApi', { id: host.id, timeStamp })
     },
     showApi() {
       this.apiVisible = !this.apiVisible

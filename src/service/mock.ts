@@ -5,6 +5,15 @@ import log from '../common/log';
 import * as MockModule from '../common/MockRules';
 import config from '../config';
 import { Api, Host, Method, Param } from '../interface';
+const fetch = require('node-fetch');
+import  * as venusFetch from 'venus-fetch';
+
+import HostHandler from '../handler/HostHandler';
+import ApiHandler from '../handler/ApiHandler';
+import MethodHandler from '../handler/MethodHandler';
+import ParamHandler from '../handler/ParamHandler';
+import io from '../common/io';
+import CommonHandler from '../handler/CommonHandler';
 
 const mockModule: any = MockModule;
 interface IMockRule {
@@ -259,7 +268,9 @@ class MockService {
 									              UNIQUE,
           projectId   INT       NOT NULL,
 			    name        VARCHAR   NOT NULL,
-			    host        VARCHAR   NOT NULL,
+          host        VARCHAR   NOT NULL,
+          port        INT       NOT NULL
+                                DEFAULT (80),
 			    path        VARCHAR,
 			    protocol    INT       NOT NULL,
 				  online      BOOLEAN   NOT NULL
@@ -371,10 +382,9 @@ class MockService {
     let matchPath = path.indexOf('?') > -1 ? path.substr(0, path.indexOf('?')) : path;
     matchPath = matchPath.replace(config.proxyHandlePath, '');
     for (const rule of mockModule.rules) {
-      console.log(rule);
       const { host, api } = rule;
       if (
-        `${host.protocol === 1 ? 'http' : 'https'}` === protocol &&
+        `${`${host.protocol}` === '1' ? 'http' : 'https'}` === protocol &&
         `${host.host}` === trueHost &&
         `${host.path}${api.url}` === matchPath &&
         method === rule.method
@@ -383,6 +393,89 @@ class MockService {
       }
     }
     return null;
+  }
+
+  public async runTestApis(hostId: number, timeStamp: number, io: io) {
+    const opt = {
+      conf: {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          mode: 'test',
+        },
+      },
+      timeout: 5000,
+    };
+    const http = venusFetch(opt, fetch);
+    const hostHandler = new HostHandler();
+    const apiHandler = new ApiHandler();
+    const methodHandler = new MethodHandler();
+    const commonHandler = new CommonHandler();
+    const protocolDict = await commonHandler.getDict('protocol');
+    const { id, host, port, protocol, path, name } = await hostHandler.obtain({ id:  hostId });
+    const { list: apis } = await apiHandler.getList({ id });
+    const methods = [];
+    for (const a of apis) {
+      const { id, url } = a;
+      const { list } = await methodHandler.getList({ id });
+      list.forEach((m) => {
+        methods.push({ ...m, url, api: a });
+      });
+    }
+
+    if (methods.length > 0) {
+      io.sendMsg('testStep', {
+        timeStamp,
+        data: {
+          type: 'start-test',
+          count: methods.length,
+          hostName: name,
+        },
+      });
+    }
+
+    await methods.forEach(async (m) => {
+      const { methodName, params, url } = m;
+      console.log(`
+        [${methodName.toUpperCase()}]
+      `);
+      const apiFullUrl =
+        `${protocolDict[protocol].name}://${host}${port === 80 ? '' : `:${port}`}${path}${url}`;
+      try {
+        io.sendMsg('testStep', {
+          timeStamp,
+          data: {
+            method: m,
+            url: `${methodName.toUpperCase()} ${apiFullUrl}`,
+            type: 'fetch-start',
+          },
+        });
+        const rst = await http[methodName](apiFullUrl);
+        io.sendMsg('testStep', {
+          timeStamp,
+          data: {
+            rst,
+            method: m,
+            id: m.id,
+            url: `${methodName.toUpperCase()} ${apiFullUrl}`,
+            type: 'fetch-success',
+          },
+        });
+      } catch (error) {
+        console.log(error);
+        const { httpStatus, message, code } = error;
+        io.sendMsg('testStep', {
+          timeStamp,
+          data: {
+            id: m.id,
+            method: m,
+            rst: { httpStatus, message, code },
+            url: `${methodName.toUpperCase()} ${apiFullUrl}`,
+            type: 'fetch-failure',
+          },
+        });
+      }
+    });
   }
 }
 

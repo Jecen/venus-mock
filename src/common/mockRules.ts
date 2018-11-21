@@ -97,9 +97,9 @@ module.exports = {
       }
     }
   },
-  *beforeDealHttpsRequest() {
-    return true;
-  },
+  // *beforeDealHttpsRequest() {
+  //   return true;
+  // },
   get rules() {
     return proxyRules;
   },

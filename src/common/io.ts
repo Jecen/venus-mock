@@ -1,4 +1,5 @@
 import * as IO from 'koa-socket';
+import log from './log';
 
 const styles = {
   bold          : ['\x1B[1m',  '\x1B[22m'],
@@ -32,13 +33,15 @@ class SocketIo {
   socket: any;
   namespace: string;
   isConnect: boolean;
+  register: object;
 
-  constructor (app, namespace) {
+  constructor (app, namespace, callback = null) {
     const io = new IO({
       namespace,
     });
     io.attach(app);
     this.io = io;
+    this.register = {};
 
     io.on('connection', ({ socket }) => {
       console.log(
@@ -47,6 +50,8 @@ class SocketIo {
       );
       this.isConnect = true;
       this.socket = socket;
+      this.register = {};
+      callback && callback(this);
     });
 
     return this;
@@ -55,6 +60,35 @@ class SocketIo {
   public sendMsg(type, data) {
     if (this.isConnect) {
       this.socket.emit(type, JSON.stringify(data));
+    }
+  }
+
+  public registerReceive(type: string, receive: Function) {
+    if (this.register.hasOwnProperty(type)) {
+      this.register[type].push(receive);
+    } else {
+      this.register[type] = [receive];
+      this.rebindReceive();
+    }
+  }
+
+  public clearRegister () {
+    this.register = {};
+  }
+
+  private rebindReceive () {
+    if (!this.socket) {
+      log.sysError('socket not connect');
+    } else {
+      Object.keys(this.register).forEach((type) => {
+        delete this.socket._events[type];
+        this.socket.on(type, (data) => {
+          const payload = JSON.parse(data);
+          this.register[type].forEach((receive) => {
+            receive(payload);
+          });
+        });
+      });
     }
   }
 

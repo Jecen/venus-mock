@@ -30,6 +30,11 @@ http.setErrorHook((error, fetchUrl) => {
   app.$Message.error(message)
 })
 Vue.prototype.$isDev = process.env.NODE_ENV === 'development'
+
+if (typeof module !== 'undefined' && module.exports) {
+  console.log('isNode ~!!')
+}
+
 export {
   app,
   router,

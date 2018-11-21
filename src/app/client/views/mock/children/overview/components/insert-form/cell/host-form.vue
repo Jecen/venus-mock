@@ -40,22 +40,33 @@
 
       </FormItem>
       <Row>
-        <Col span='8'>
+        <Col span='16'>
           <FormItem label='域名' prop='host'>
             <Input
               :clearable='!disabled'
               type='text'
               :disabled='disabled'
-              placeholder='请输入域名'
+              placeholder='请输入域名,例如：api.venus-mock.com'
               @input='$emit("update", hostFeild)'
               v-model='hostFeild.host'></Input>
           </FormItem>
         </Col>
-        <Col span='8'>
+         <Col span='8'>
+          <FormItem label='端口号' prop='port'>
+            <Input
+              :disabled='disabled'
+              placeholder='请输入端口号,默认为80'
+              type='text'
+              :clearable='!disabled'
+              @input='$emit("update", hostFeild)'
+              v-model='hostFeild.port'></Input>
+          </FormItem>
+        </Col>
+        <Col span='16'>
           <FormItem label='路径' prop='path'>
             <Input
               :disabled='disabled'
-              placeholder='请输入路径'
+              placeholder='请输入路径,例如：/h5/v1'
               type='text'
               :clearable='!disabled'
               @input='$emit("update", hostFeild)'
@@ -98,6 +109,7 @@ export default {
         id: '',
         name: '',
         host: '',
+        port: 80,
         path: '',
         protocol: 1,
         online: 1,
@@ -118,6 +130,17 @@ export default {
           { validator: (rule, value, callback) => { // eslint-disable-line
             if (value === '') {
               callback(new Error('域名不能为空！'))
+            } else {
+              callback()
+            }
+          },
+          trigger: 'change',
+          },
+        ],
+        port: [
+          { validator: (rule, value, callback) => { // eslint-disable-line
+            if (value === '') {
+              callback(new Error('端口号不能为空！'))
             } else {
               callback()
             }

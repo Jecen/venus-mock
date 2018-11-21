@@ -78,6 +78,7 @@
     "minimatch": "^3.0.4",
     "mkdirp": "^0.5.1",
     "nan": "^2.7.0",
+    "node-fetch": "^2.3.0",
     "node-sass": "^4.5.3",
     "node-unzip-2": "^0.2.1",
     "nodemon": "^1.11.0",
@@ -105,6 +106,7 @@
     "update-notifier": "^2.3.0",
     "uuid": "^3.1.0",
     "v8flags": "^3.0.1",
+    "venus-fetch": "^1.0.15",
     "vue": "^2.5.17",
     "vue-server-renderer": "^2.5.17"
   },

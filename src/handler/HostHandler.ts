@@ -66,10 +66,10 @@ class HostHandler extends Handler{
    */
   public async insert(params: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
-      const { name, host, path, protocol, online, projectId } = params;
+      const { name, host, path, port = 80, protocol, online, projectId } = params;
       const sql = `
-        INSERT INTO hosts( name, host, path, protocol, online, projectId )
-        VALUES(?, ?, ?, ?, ?, ?)
+        INSERT INTO hosts( name, host, port, path, protocol, online, projectId )
+        VALUES(?, ?, ?, ?, ?, ?, ?)
       `;
 
       const checkRst = this.checkParams(
@@ -78,7 +78,7 @@ class HostHandler extends Handler{
        );
 
       if (checkRst.pass) {
-        const data = await this.run(sql, [name, host, path, protocol, online, projectId]);
+        const data = await this.run(sql, [name, host, port, path, protocol, online, projectId]);
         if (data) {
           mockModule.update();
           resolve({ id: data.lastID });

@@ -9,6 +9,7 @@ class Socket {
   // listenerMap: Object
 
   constructor(path, namespace) {
+
     this.path = path
     this.namespace = namespace
     this.listenerMap = {}
@@ -25,9 +26,12 @@ class Socket {
 
   updateListener() {
     Object.keys(this.listenerMap).forEach(eventType => {
-      this.io && this.io.on(eventType, (data) => {
-        this.listenerMap[eventType].forEach(itm => itm.func(data))
-      })
+      if (this.io) {
+        delete this.io._callbacks[`$${eventType}`]
+        this.io.on(eventType, (data) => {
+          this.listenerMap[eventType].forEach(itm => itm.func(data))
+        })
+      }
     })
   }
 
@@ -61,6 +65,10 @@ class Socket {
       console.error('无对应id的监听函数')
       return false
     }
+  }
+
+  sendMessage(type, data) {
+    this.io.emit(type, JSON.stringify(data))
   }
 }
 

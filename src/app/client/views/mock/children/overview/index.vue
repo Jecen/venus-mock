@@ -14,6 +14,7 @@
           :host='h'
           :apis='apiMap[h.id] || []'
           :insertFrom='$refs["insertFrom"]'
+          @testApi='time => {currentTimeStamp = time; testBoard = true}'
           @edit='editHost(h)'
           @del='delHost(h)'
           @apiVisible='(v) => fetchApis(h, v)'
@@ -69,6 +70,20 @@
         </FormItem>
       </Form>
    </Modal>
+
+   <Drawer
+      :width='800'
+      class='test-drawer'
+      :closable='false'
+      v-model='testBoard'>
+      <div class='msg-content'>
+        <p class='test-msg' v-for='m in testMsgArr' :key='m'>
+          <span class='name'>{{currentHostName}}批量测试 </span>
+          <span class='time'>[{{m.time}}]:</span>
+          <span class='msg'>{{m.msg}}</span>
+        </p>
+      </div>
+    </Drawer>
   </div>
 </template>
 
@@ -158,6 +173,10 @@ export default {
         ],
       },
       drawerVisible: false,
+      currentTimeStamp: '',
+      currentHostName: '',
+      testMsgArr: [],
+      testBoard: false,
     }
   },
   computed: {
@@ -170,6 +189,12 @@ export default {
     this.$store.dispatch('common/getDict', { name: 'mockType' })
     this.$store.dispatch('common/getDict', { name: 'protocol' })
     this.$store.dispatch('common/getDict', { name: 'paramsType' })
+
+    this.$mockSocket.registerListener('testStep', (data) => {
+      const obj = JSON.parse(data)
+      this.handler(obj)
+      console.log(obj, '!!!')
+    })
   },
   methods: {
     async getData() {
@@ -226,6 +251,43 @@ export default {
       }
       this.$refs.hostForm.resetFields()
     },
+    handler(payload) {
+      const { data, timeStamp } = payload
+      if (this.currentTimeStamp !== timeStamp) {
+        return
+      }
+      const { type, count, hostName, url, method, rst } = data
+      switch (type) {
+        case 'start-test':
+          this.testMsgArr = []
+          this.currentHostName = hostName
+          this.testMsgArr.push({
+            time: this.tool.reTime(),
+            msg: `开始进行${hostName}下API批量测试，共 ${count} 个`,
+          })
+          break
+        case 'fetch-start':
+          this.testMsgArr.push({
+            time: this.tool.reTime(),
+            msg: `请求 ${url} [${method.name}] 中...`,
+          })
+          break
+        case 'fetch-success':
+          this.testMsgArr.push({
+            time: this.tool.reTime(),
+            msg: `请求 ${url} [${method.name}] 成功！返回数据: ${JSON.stringify(rst)}`,
+          })
+          break
+        case 'fetch-failure':
+          this.testMsgArr.push({
+            time: this.tool.reTime(),
+            msg: `请求 ${url} [${method.name}] 失败！错误信息: ${JSON.stringify(rst)}`,
+          })
+          break
+        default:
+          break
+      }
+    },
   },
 }
 </script>
@@ -253,6 +315,22 @@ export default {
     font-size: 14px;
     font-weight: 500;
     width: 100px;
+  }
+}
+.test-drawer{
+  .msg-content{
+    height: 100%;
+    background: #000;
+    border-radius: 3px;
+    padding: 10px;
+    .test-msg{
+      font-size: 12px;
+      color: green;
+      font-weight: 500;
+    }
+  }
+  & /deep/ .ivu-drawer-body{
+    padding: 5px;
   }
 }
 </style>

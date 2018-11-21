@@ -8,6 +8,7 @@ import * as bodyParser from 'koa-bodyparser';
 import * as koaBody from 'koa-body';
 import * as historyApiFallback from 'koa-history-api-fallback';
 import * as Proxy from 'anyproxy';
+import { service, mockService } from './service/mock';
 import io from './common/io';
 import routers from './routers';
 import log from './common/log';
@@ -29,12 +30,19 @@ app
     .use(km_logger())
     .use(koaBody({ multipart: true, formLimit: '5mb', jsonLimit: '5mb', textLimit: '5mb' }))
     .use(bodyParser())
+    .use(async (ctx, next) => {
+      ctx['mockIo'] = mockIo;
+      mockIo.clearRegister();
+      mockIo.registerReceive('testHostApi', ({ id, timeStamp }) => {
+        service.runTestApis(id, timeStamp, mockIo);
+      });
+      await next();
+    })
     .use(routers.routes())
     .use(routers.allowedMethods())
     .use(historyApiFallback())
     .use(km_static(path.join(__dirname, './app/dist')))
     .use(km_static(path.join(__dirname, '../static')));
-
 app.listen(appOption.httpPort);
 
 log.sysInfo(`main server start at port: ${appOption.httpPort}`);
@@ -69,5 +77,3 @@ proxyServer.on('error', (err) => {
   log.sysError(err);
 });
 proxyServer.start();
-
-export default mockIo;
