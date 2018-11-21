@@ -1,4 +1,4 @@
-import Http, { httpConfig, HTTP_ERROR_MAP, HttpError } from 'venus-fetch' // eslint-disable-line
+import Http, { httpConfig, HTTP_ERROR_MAP, HttpError } from './venus-fetch' // eslint-disable-line
 
 export default (Vue, opt = {}) => {
   const http = Http({

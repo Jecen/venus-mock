@@ -47,7 +47,7 @@
     "promise-polyfill": "^6.0.2",
     "socket.io": "^2.1.1",
     "uuid": "^3.3.2",
-    "venus-fetch": "^1.0.15",
+    "venus-fetch": "^1.1.0",
     "venus-ui": "^1.0.9",
     "vue": "^2.5.16",
     "vue-jsonp": "^0.1.8",
