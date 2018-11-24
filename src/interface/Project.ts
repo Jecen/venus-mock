@@ -18,7 +18,7 @@ export default class Project implements ImProject {
     Object.keys(param).forEach((key) => {
       if (props.indexOf(key) > -1) {
         if (!param[key]) {
-          throw new GraphQLError('test GraphQlError');
+          throw new GraphQLError('test GraphQl');
         }
         this[key] = param[key];
       }

@@ -2,9 +2,28 @@
 import Handler from './Handler';
 import HostHandler from './HostHandler';
 
+import * as DataLoader  from 'dataloader';
+
 class ProjectHandler extends Handler{
+
+  obtainLoader: any;
+
   constructor() {
     super();
+
+    this.initObtainLoader();
+  }
+
+  private initObtainLoader() {
+    this.obtainLoader = new DataLoader(async (ids) => {
+      const params = ids.join(',');
+      const projects = await this.task(`
+        SELECT * FROM projects WHERE id IN (${params})
+      `);
+      return ids.map(
+        id => projects.find(p => `${p.id}` === `${id}`) || new Error(`Row not found: ${id}`),
+      );
+    });
   }
 
   /**
@@ -105,74 +124,14 @@ class ProjectHandler extends Handler{
    * @param params 请求参数
    */
   public async obtain(params: any): Promise<any> {
-    return new Promise(async (resolve, reject) => {
-      const { id } = params;
-
-      const sql = this.getQuerySQL('projects', [
-        { type: this.queryType.eq, key: 'id', value: id },
-      ]);
-
-      try {
-        const [
-          [project],
-          [{ COUNT: records }],
-          [{ COUNT: hosts }],
-          [{ COUNT: apis }],
-          [{ COUNT: methods }],
-          [{ COUNT: successCount }],
-          [{ COUNT: failureCount }],
-        ] = await Promise.all([
-          this.queryTask(sql),
-          this.recordTask('projectId', [id]),
-          this.task(`
-            SELECT COUNT(*) as COUNT
-            FROM hosts
-            WHERE projectId = ${id}
-          `),
-          this.task(`
-            SELECT COUNT(*) as COUNT
-            FROM apis
-            WHERE projectId = ${id}
-          `),
-          this.task(`
-            SELECT COUNT(*) as COUNT
-            FROM methods
-            WHERE projectId = ${id}
-          `),
-          this.task(`
-            SELECT COUNT(*) as COUNT
-            FROM records
-            WHERE projectId = ${id} and success = 1
-          `),
-          this.task(`
-            SELECT COUNT(*) as COUNT
-            FROM records
-            WHERE projectId = ${id} and success = 0
-          `),
-        ]);
-        if (project.img) {
-          project['img'] = `//${this.appConf.hostName}:${this.appConf.httpPort}${project.img}`;
-        }
-        resolve({
-          ...project,
-          apis,
-          failureCount,
-          hosts,
-          methods,
-          records,
-          successCount,
-        });
-      } catch (error) {
-        reject(error);
-      }
-    });
+    return this.obtainLoader.load(params.id);
   }
 
   /**
    * 修改项目信息
    * @param params 请求参数
    */
-  public async update(params: any): Promise<any> {
+  public async update(params: any): Promise< any > {
     return new Promise(async (resolve, reject) => {
       const { id, name, description, img } = params;
 
@@ -182,6 +141,7 @@ class ProjectHandler extends Handler{
       if (checkRst.pass) {
         const data = await this.run(sql, [name, description, img, id]);
         if (data) {
+          this.obtainLoader.clear(id);
           resolve({ id: data.lastID });
         } else {
           reject('修改失败');
@@ -196,7 +156,7 @@ class ProjectHandler extends Handler{
    * 删除Project
    * @param params 请求参数
    */
-  public async del(params: any) : Promise<any> {
+  public async del(params: any) : Promise < any > {
     return new Promise(async (resolve, reject) => {
       const { id } = params;
       const sql = `
@@ -210,6 +170,7 @@ class ProjectHandler extends Handler{
         ));
         const data = await this.run(sql);
         if (data) {
+          this.obtainLoader.clear(id);
           resolve({ id: data.lastID });
         } else {
           reject('删除失败');
@@ -220,7 +181,7 @@ class ProjectHandler extends Handler{
     });
   }
 
-  public handle(action: string, params: any): Promise<any> {
+  public handle(action: string, params: any): Promise<any > {
     let runner = null;
     switch (action) {
       case 'getList':

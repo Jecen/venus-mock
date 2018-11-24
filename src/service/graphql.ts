@@ -28,8 +28,7 @@ class GraphQLService {
   methodHandler: MethodHandler;
   paramHandler: ParamHandler;
 
-  resolver: any;
-  schema: any;
+  root: any;
 
   constructor() {
     this.projectHandler = new ProjectHandler();
@@ -39,48 +38,63 @@ class GraphQLService {
     this.methodHandler = new MethodHandler();
     this.paramHandler = new ParamHandler();
 
+    this.root = this.initGraphQLRootValue();
     log.sysInfo('GRAPHQL SERVICE IS READY');
+  }
+
+  initGraphQLRootValue() {
+    return {
+      param: async ({ id }) =>  {
+        const param = await this.paramHandler.obtain({ id });
+        return new Param(param);
+      },
+      method: async ({ id }) =>  {
+        const method = await this.methodHandler.obtain({ id });
+        return new Method(method);
+      },
+      api: async ({ id }) => {
+        const api = await this.apiHandler.obtain({ id });
+        return new Api(api);
+      },
+      host: async ({ id }) => {
+        const host = await this.hostHandler.obtain({ id });
+        return new Host(host);
+      },
+      project: async ({ id }) => {
+        const project = await this.projectHandler.obtain({ id });
+        return new Project(project);
+      },
+      projectList: async () => {
+        const { list: data } = await this.projectHandler.getList({});
+        return data.map((p) => {
+          return new Project(p);
+        });
+      },
+    };
   }
 
   public async handler(ctx): Promise<object> {
     return new Promise(async (resolve, reject) => {
       const { request: { body: { query, variable } } } = ctx;
 
-      const { data } = await graphql(
+      const { data, errors } = await graphql(
         schema,
         query,
-        {
-          param: async ({ id }) =>  {
-            const param = await this.paramHandler.obtain({ id });
-            return new Param(param);
-          },
-          method: async ({ id }) =>  {
-            const method = await this.methodHandler.obtain({ id });
-            return new Method(method);
-          },
-          api: async ({ id }) => {
-            const api = await this.apiHandler.obtain({ id });
-            return new Api(api);
-          },
-          host: async ({ id }) => {
-            const host = await this.hostHandler.obtain({ id });
-            return new Host(host);
-          },
-          project: async ({ id }) => {
-            const project = await this.projectHandler.obtain({ id });
-            return new Project(project);
-          },
-          projectList: async () => {
-            const { list: data } = await this.projectHandler.getList({});
-            return data.map((p) => {
-              return new Project(p);
-            });
-          },
-        },
+        this.root,
         null,
         variable,
       );
-      resolve(responseHelper.newResponse(data));
+
+      if (errors && errors.length > 0) {
+        let msg = '';
+        errors.forEach((error) => {
+          log.sysError(error.message);
+          msg += `${error.message}; `;
+        });
+        resolve(responseHelper.newResponse(null, false, msg));
+      } else {
+        resolve(responseHelper.newResponse(data));
+      }
     });
   }
 }

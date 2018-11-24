@@ -37,12 +37,23 @@ const actions = {
   getProjectsList({ commit }, payload) {
     http.post('/graphql', {
       query: `{
-      __types(projectList) {
-          hosts {
+          __type (name: "Query") {
             name
-        }
-      }
-    }`,
+            fields {
+              name
+              type {
+                name
+                kind
+                fields {
+                  name
+                }
+              }
+              args {
+                name
+              }
+            }
+          }
+      }`,
     })
     http.post('/graphql', {
       query: `query {
