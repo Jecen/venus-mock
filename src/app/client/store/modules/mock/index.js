@@ -1,4 +1,5 @@
 import apiFunc, {projectApi, hostApi, apiApi, methodApi, paramApi} from './api' // eslint-disable-line
+import { http } from 'root/app'
 
 // 初始化store对象
 const state = {
@@ -34,6 +35,36 @@ const actions = {
     return apiFunc[projectApi.UPDATE_PROJECT](payload)
   },
   getProjectsList({ commit }, payload) {
+    http.post('/graphql', {
+      query: `{
+      __types(projectList) {
+          hosts {
+            name
+        }
+      }
+    }`,
+    })
+    http.post('/graphql', {
+      query: `query {
+        projectList {
+          name,
+          hosts {
+            name,
+            apis {
+              name,
+              methods {
+                name,
+                params {
+                  name
+                }
+              }
+            }
+          }
+        },
+      }`,
+      variable: { id: 1 },
+    })
+
     return apiFunc[projectApi.FETCH_PROJECTS_LIST](payload, (data) => {
       const { list } = data
       commit('updateProjectList', list)

@@ -3,7 +3,7 @@ import dbHelper from '../common/dbHelper';
 import config from '../config';
 
 abstract class Handler {
-  dataBase: any;
+  public dataBase: any;
   queryType: any;
   appConf: any;
 

@@ -2,9 +2,14 @@ import Handler from './Handler';
 import ParamHandler from './ParamHandler';
 import * as MockModule from '../common/MockRules';
 const mockModule: any = MockModule;
+
 class MethodHandler extends Handler{
+
+  paramHandler: ParamHandler;
+
   constructor() {
     super();
+    this.paramHandler = new ParamHandler();
   }
 
   /**
@@ -40,7 +45,7 @@ class MethodHandler extends Handler{
           'methodId',
           list.map(itm => itm.id),
         );
-        const paramHander = new ParamHandler();
+        const paramHander = this.paramHandler;
         const paramsData: any[] = await Promise.all(
           list.map(async (itm) => {
             const { list } = await paramHander.getList({ id: itm.id });
@@ -138,6 +143,7 @@ class MethodHandler extends Handler{
    * @param params 请求参数
    */
   public async obtain(params: any): Promise<any > {
+
     return new Promise(async (resolve, reject) => {
       const { id } = params;
 

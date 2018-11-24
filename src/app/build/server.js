@@ -11,6 +11,12 @@ module.exports = {
   port: 5001,
   proxy: {
     // 代理示例
+    '/api/graphql': {
+      target: 'http://localhost:9000/graphql',
+      pathRewrite: {
+        '/api/graphql': '',
+      },
+    },
     '/api': {
       target: 'http://localhost:9000/api',
       pathRewrite: {

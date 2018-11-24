@@ -27,7 +27,7 @@ module.exports = (mode) => ({
     hints: mode === 'production' ? 'warning' : false,
   },
   resolve: {
-    extensions: ['.js', '.vue', '.css', '.json'],
+    extensions: ['.mjs', '.js', '.vue', '.css', '.json'],
     alias: {
       root: path.join(__dirname, '../client'),
       components: path.join(__dirname, '../client/components'),

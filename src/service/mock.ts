@@ -6,7 +6,7 @@ import * as MockModule from '../common/MockRules';
 import config from '../config';
 import { Api, Host, Method, Param } from '../interface';
 const fetch = require('node-fetch');
-import  * as venusFetch from 'venus-fetch';
+import * as venusFetch from 'venus-fetch';
 
 import HostHandler from '../handler/HostHandler';
 import ApiHandler from '../handler/ApiHandler';
@@ -125,18 +125,16 @@ class MockService {
     const paramsRules = await this.getParams(id);
     const error = [];
     const regPos = /^\d+(\.\d+)?$/; // 非负浮点数
-    const regNeg =  // 负浮点数
-        /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/;
+    const regNeg =
+      /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/; // 负浮点数
 
     const isNumber = (val, isQuery) =>
-      (isQuery && (regPos.test(val) ||
-      regNeg.test(val))) ||
+      (isQuery && (regPos.test(val) || regNeg.test(val))) ||
       typeof val === 'number';
 
     const isBoolean = (val, isQuery) =>
       (isQuery && typeof val === 'boolean') ||
-      (typeof val === 'string' && (val === 'true' ||
-      val === 'false'));
+      (typeof val === 'string' && (val === 'true' || val === 'false'));
 
     paramsRules.forEach((rule) => {
       if (rule.mandatory) {
@@ -223,7 +221,7 @@ class MockService {
           updateRules();
         }
       };
-      dataBase.run(
+      const sqls = [
         `CREATE TABLE IF NOT EXISTS dicts (
           id          INTEGER   PRIMARY KEY AUTOINCREMENT
                                 NOT NULL
@@ -231,11 +229,7 @@ class MockService {
           name        VARCHAR   NOT NULL
                                 UNIQUE,
           crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)
-			)`,
-        cb,
-      );
-
-      dataBase.run(
+        )`,
         `CREATE TABLE IF NOT EXISTS options (
           id          INTEGER   PRIMARY KEY AUTOINCREMENT
                       NOT NULL
@@ -243,11 +237,7 @@ class MockService {
           dictId      INT       NOT NULL,
           name        VARCHAR   NOT NULL,
           crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)
-			)`,
-        cb,
-      );
-
-      dataBase.run(
+        )`,
         `CREATE TABLE IF NOT EXISTS projects (
 			    id          INTEGER   PRIMARY KEY AUTOINCREMENT
 			  						            NOT NULL
@@ -257,11 +247,7 @@ class MockService {
 				  description VARCHAR   NOT NULL,
 				  img         VARCHAR   NOT NULL,
 			    crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)
-			)`,
-        cb,
-      );
-
-      dataBase.run(
+        )`,
         `CREATE TABLE IF NOT EXISTS hosts (
 			    id          INTEGER   PRIMARY KEY AUTOINCREMENT
 			  						            NOT NULL
@@ -276,34 +262,26 @@ class MockService {
 				  online      BOOLEAN   NOT NULL
 									              DEFAULT (0),
 			    crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)
-			)`,
-        cb,
-      );
-
-      dataBase.run(
+        )`,
         `CREATE TABLE IF NOT EXISTS apis (
 			    id          INTEGER   PRIMARY KEY AUTOINCREMENT
 			  			     	            UNIQUE
 									              NOT NULL,
-				  projectId   INT       NOT NULL,
+          projectId   INT       NOT NULL,
 			    hostId      INT       NOT NULL,
 			    name        VARCHAR   NOT NULL,
 			    url         VARCHAR   NOT NULL,
 			    type        INT       NOT NULL
                                 DEFAULT (0),
 			    crDate      TIMESTAMP DEFAULT (CURRENT_TIMESTAMP)
-			)`,
-        cb,
-      );
-
-      dataBase.run(
+        )`,
         `CREATE TABLE IF NOT EXISTS methods (
 			    id          INTEGER   PRIMARY KEY AUTOINCREMENT
 			  			   		            NOT NULL
 										            UNIQUE,
 				  projectId   INT       NOT NULL,
-			    hostId      INT       NOT NULL,
-				  apiId       INT       NOT NULL,
+          hostId      INT       NOT NULL,
+          apiId       INT       NOT NULL,
 			    name        VARCHAR   NOT NULL,
           method      INT       NOT NULL,
           disable     INT       NOT NULL
@@ -311,18 +289,14 @@ class MockService {
 				  result      VARCHAR,
 			    crDate      TIMESTAMP NOT NULL
 								                DEFAULT (CURRENT_TIMESTAMP)
-			)`,
-        cb,
-      );
-
-      dataBase.run(
+        )`,
         `CREATE TABLE IF NOT EXISTS params (
           id          INTEGER   PRIMARY KEY AUTOINCREMENT
                                 NOT NULL
                                 UNIQUE,
           projectId   INT       NOT NULL,
-			    hostId      INT       NOT NULL,
-				  apiId       INT       NOT NULL,
+          hostId      INT       NOT NULL,
+          apiId       INT       NOT NULL,
           methodId    INT       NOT NULL,
           key         VARCHAR   NOT NULL,
           name        VARCHAR   NOT NULL,
@@ -332,11 +306,7 @@ class MockService {
                                 DEFAULT (0),
           crDate      TIMESTAMP NOT NULL
                                 DEFAULT (CURRENT_TIMESTAMP)
-			)`,
-        cb,
-      );
-
-      dataBase.run(
+        )`,
         `CREATE TABLE IF NOT EXISTS records (
           id          INTEGER   PRIMARY KEY AUTOINCREMENT
                                 NOT NULL
@@ -351,9 +321,37 @@ class MockService {
           msg			    VARCHAR,
           crDate      TIMESTAMP NOT NULL
                                 DEFAULT (CURRENT_TIMESTAMP)
-			)`,
-        cb,
-      );
+        )`,
+        `CREATE TABLE IF NOT EXISTS records (
+          id          INTEGER   PRIMARY KEY AUTOINCREMENT
+                                NOT NULL
+                                UNIQUE,
+          projectId   INT       NOT NULL,
+          hostId      INT       NOT NULL,
+          apiId       INT       NOT NULL,
+          methodId    INT       NOT NULL,
+          url			    VARCHAR   NOT NULL,
+          success     INT       NOT NULL
+                                DEFAULT (1),
+          msg			    VARCHAR,
+          crDate      TIMESTAMP NOT NULL
+                                DEFAULT (CURRENT_TIMESTAMP)
+			  )`,
+      ];
+
+      let cursor = 0;
+      const initTable = () => {
+        const sql = sqls[cursor];
+        dataBase.run(sql, () => {
+          cb && cb();
+          if (cursor < sqls.length - 1) {
+            cursor += 1;
+            initTable();
+          }
+        });
+      };
+
+      initTable();
 
       // TODO 字典项初始化
       // db.run(`INSERT INTO
@@ -377,9 +375,14 @@ class MockService {
    * @param path 路径
    * @param method 请求方法
    */
-  matchRule(trueHost: string, path: string, method: string, protocol: string): object {
-
-    let matchPath = path.indexOf('?') > -1 ? path.substr(0, path.indexOf('?')) : path;
+  matchRule(
+    trueHost: string,
+    path: string,
+    method: string,
+    protocol: string,
+  ): object {
+    let matchPath =
+      path.indexOf('?') > -1 ? path.substr(0, path.indexOf('?')) : path;
     matchPath = matchPath.replace(config.proxyHandlePath, '');
     for (const rule of mockModule.rules) {
       const { host, api } = rule;
@@ -412,7 +415,9 @@ class MockService {
     const methodHandler = new MethodHandler();
     const commonHandler = new CommonHandler();
     const protocolDict = await commonHandler.getDict('protocol');
-    const { id, host, port, protocol, path, name } = await hostHandler.obtain({ id:  hostId });
+    const { id, host, port, protocol, path, name } = await hostHandler.obtain({
+      id: hostId,
+    });
     const { list: apis } = await apiHandler.getList({ id });
     const methods = [];
     for (const a of apis) {
@@ -439,8 +444,9 @@ class MockService {
       console.log(`
         [${methodName.toUpperCase()}]
       `);
-      const apiFullUrl =
-        `${protocolDict[protocol].name}://${host}${port === 80 ? '' : `:${port}`}${path}${url}`;
+      const apiFullUrl = `${protocolDict[protocol].name}://${host}${
+        port === 80 ? '' : `:${port}`
+      }${path}${url}`;
       try {
         io.sendMsg('testStep', {
           timeStamp,
