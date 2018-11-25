@@ -6,7 +6,7 @@
       :model='hostFeild'
       :rules='hostRule'
       :label-width='80'>
-      <FormItem label='名称' prop='name'>
+      <FormItem label='名称' prop='name' class='cover-itm'>
         <Row>
           <Col span='6'>
             <Input
@@ -14,13 +14,13 @@
               :clearable='!disabled'
               placeholder='请输入名称'
               :disabled='disabled'
-              @input='$emit("update", hostFeild)'
               v-model='hostFeild.name'>
             </Input>
           </Col>
           <Col span='4' style='text-align: center;'> Cover By </Col>
           <Col span='14'>
             <Select
+              class='cover-pool'
               v-model='coverData'
               placeholder='从已存在的数据中选取覆盖'
               filterable
@@ -47,7 +47,6 @@
               type='text'
               :disabled='disabled'
               placeholder='请输入域名,例如：api.venus-mock.com'
-              @input='$emit("update", hostFeild)'
               v-model='hostFeild.host'></Input>
           </FormItem>
         </Col>
@@ -58,7 +57,6 @@
               placeholder='请输入端口号,默认为80'
               type='text'
               :clearable='!disabled'
-              @input='$emit("update", hostFeild)'
               v-model='hostFeild.port'></Input>
           </FormItem>
         </Col>
@@ -69,7 +67,6 @@
               placeholder='请输入路径,例如：/h5/v1'
               type='text'
               :clearable='!disabled'
-              @input='$emit("update", hostFeild)'
               v-model='hostFeild.path'></Input>
           </FormItem>
         </Col>
@@ -77,7 +74,6 @@
           <FormItem label='协议' prop='protocol'>
             <RadioGroup
               v-model='hostFeild.protocol'
-              @input='$emit("update", hostFeild)'
               type='button'>
               <Radio
                 v-for='opt in protocolDict ? protocolDict.options : []'
@@ -94,7 +90,6 @@
 </template>
 
 <script>
-import _ from 'lodash'
 export default {
   name: 'HostForm',
   props: {
@@ -123,7 +118,7 @@ export default {
               callback()
             }
           },
-          trigger: 'change',
+          trigger: 'blur',
           },
         ],
         host: [
@@ -175,21 +170,6 @@ export default {
       return this.$store.getters['common/dict']('protocol')
     },
   },
-  watch: {
-    coverData: function (val) {
-      if (val || val === 0) {
-        const index = _.findIndex(this.hosts, { id: parseInt(val) })
-        if (index > -1) {
-          this.$refs.hostForm.resetFields()
-          this.initData(this.hosts[index])
-        } else {
-          this.initData(null)
-        }
-      } else {
-        this.initData(null)
-      }
-    },
-  },
   mounted() {
   },
   methods: {
@@ -202,6 +182,7 @@ export default {
           id: '',
           name: '',
           host: '',
+          port: 80,
           path: '',
           protocol: 1,
           online: 1,
@@ -209,16 +190,19 @@ export default {
         this.$emit('cover', '')
       }
     },
-    onCoverDateChange() {
-      setTimeout(() => {
-        this.$emit('update', this.hostFeild)
-      }, 0)
+    onCoverDateChange(id) {
+      const [host] = this.hosts.filter(h => h.id === id)
+      this.$refs.hostForm.resetFields()
+      this.initData(host || null)
+      this.$store.commit('mock/updateHostField', this.hostFeild)
     },
     getData() {
       return new Promise((resolve, reject) => {
         this.$refs.hostForm.validate((success) => {
           if (success) {
-            resolve(this.hostFeild)
+            const rst = Object.assign({}, this.hostFeild)
+            delete rst['apis']
+            resolve(rst)
           } else {
             reject()
           }
@@ -227,10 +211,10 @@ export default {
     },
     setCoverId(id) {
       this.coverData = id
-      return new Promise((resolve) => setTimeout(() => {
-        this.$emit('update', this.hostFeild)
-        resolve()
-      }, 0))
+      const [host] = this.hosts.filter(h => h.id === id)
+      this.$refs.hostForm.resetFields()
+      this.initData(host || null)
+      this.$store.commit('mock/updateHostField', this.hostFeild)
     },
   },
 }
@@ -243,6 +227,21 @@ export default {
   .form-title{
     font-size: 16px;
     font-weight: 500;
+  }
+  .cover-itm{
+    .cover-pool{
+      & /deep/ .ivu-select-selection{
+        border: 1px solid #dcdee2;
+      }
+      & /deep/ .ivu-icon{
+        color: #808695;
+      }
+    }
+    & /deep/ .ivu-select-visible{
+      & /deep/ .ivu-select-selection{
+        box-shadow: 0 0 0 2px rgba(45,140,240,.2);
+      }
+    }
   }
 }
 </style>

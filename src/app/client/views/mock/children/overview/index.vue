@@ -38,7 +38,6 @@
     </Button>
     <insert-form
       ref='insertFrom'
-      :hosts='hosts'
       :projectId='$route.params.projectId'
       v-model='drawerVisible' />
     <Modal

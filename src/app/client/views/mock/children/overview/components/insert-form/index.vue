@@ -9,17 +9,10 @@
       @input='v => $emit("input", v)'>
       <div class='content'>
         <div class='form-wrapper'>
-          <host-form
-            ref='host'
-            :hosts='hosts'
-            @update='h => host = h' />
+          <host-form ref='host' :hosts='hosts' />
         </div>
         <div class='form-wrapper'>
-          <api-form
-            ref='api'
-            :host='host'
-            :apis='apis'
-            @update='a => api = a' />
+          <api-form ref='api' />
         </div>
         <div class='form-wrapper'>
           <method-form ref='method' @methodChange='methodChange' :methods='methods' />
@@ -52,10 +45,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    hosts: {
-      type: Array,
-      default: () => ([]),
-    },
     projectId: {
       type: [String, Number],
       default: '',
@@ -72,22 +61,20 @@ export default {
     }
   },
   computed: {
-    apis() {
-      return this.host.id ? this.apiMap[`${this.host.id}`] : []
-    },
     methods() {
       return this.api.methods || []
     },
-  },
-  watch: {
-    host: async function ({ id }) {
-      if (id) {
-        const apis = await this.$store.dispatch('mock/getHostOverviewData', { id: parseInt(id) })
-        this.apiMap = {
-          ...this.apiMap,
-          [id]: apis,
-        }
-      }
+
+    overview() {
+      return this.$store.getters['mock/overview']
+    },
+    project() {
+      const { project } = this.overview
+      return project
+    },
+    hosts() {
+      const { hosts: { list } = { list: [] }} = this.project || {}
+      return list
     },
   },
   methods: {

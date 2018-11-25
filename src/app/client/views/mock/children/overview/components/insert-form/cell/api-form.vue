@@ -6,7 +6,7 @@
       :model='apiFeild'
       :rules='apiRule'
       :label-width='80'>
-      <FormItem label='API名称' prop='name'>
+      <FormItem label='API名称' prop='name' class='cover-itm'>
         <Row>
           <Col span='6'>
             <Input
@@ -14,13 +14,13 @@
               :clearable='!disabled'
               placeholder='请输入名称'
               :disabled='disabled'
-              @input='$emit("update", apiFeild)'
               v-model='apiFeild.name'>
             </Input>
           </Col>
           <Col span='4' style='text-align: center;'> Cover By </Col>
           <Col span='14'>
             <Select
+              class='cover-pool'
               v-model='coverId'
               placeholder='从已存在的数据中选取覆盖'
               filterable
@@ -32,10 +32,10 @@
                 :label='a.name'
                 :key='a.id'>
                 <div class='option-inner-wrapper'>
-                  <span class='name'>{{a.name}}</span>
+                  <span class='name'>{{a.name}}{{a.id}}</span>
                   <span class='url'>{{a.url}}</span>
                   <p class='method-wrapper'>
-                    <span v-for='m in a.methods' :key='m.id' :class='`method ${m.methodName}`'>
+                    <span v-for='m in a.methods ? a.methods.list : []' :key='m.id' :class='`method ${m.methodName}`'>
                       {{m.methodName.toUpperCase()}}
                     </span>
                   </p>
@@ -54,9 +54,10 @@
               placeholder='请输入路径'
               type='text'
               :clearable='!disabled'
-              @input='$emit("update", apiFeild)'
               v-model='apiFeild.url'>
-              <span class='host-url' slot='prepend'>{{protocolDict[host.protocol] || "http"}}://{{host.host || "[host]"}}{{host.path || "/[path]"}}</span>
+              <span class='host-url' slot='prepend'>
+                {{protocolDict[host.protocol] || "http"}}://{{host.host || "[host]"}}{{host.port !== 80 ? `:${host.port}` : ''}}{{host.path || "/[path]"}}
+              </span>
             </Input>
           </FormItem>
         </Col>
@@ -67,7 +68,6 @@
               v-model='apiFeild.type'
               size='large'
               :disabled='disabled'
-              @input='$emit("update", apiFeild)'
               :true-value='7'
               :false-value='8'>
               <span slot='open'>MOCK</span>
@@ -77,22 +77,14 @@
         </Col>
       </Row>
     </Form>
+    {{!!coverId}}{{coverId}}
   </div>
 </template>
 
 <script>
+import _ from 'lodash'
 export default {
   name: 'ApiForm',
-  props: {
-    apis: {
-      type: Array,
-      default: () => ([]),
-    },
-    host: {
-      type: Object,
-      default: null,
-    },
-  },
   data() {
     return {
       apiFeild: {
@@ -130,8 +122,15 @@ export default {
     }
   },
   computed: {
+    host() {
+      return this.$store.getters['mock/hostField']
+    },
+    apis() {
+      const { apis: { list } = { list: [] }} = this.host
+      return list
+    },
     disabled() {
-      return !!this.coverId
+      return this.coverId !== ''
     },
     protocolDict() {
       const { options } = this.$store.getters['common/dict']('protocol') || { options: [] }
@@ -143,23 +142,11 @@ export default {
     },
   },
   watch: {
-    coverId: function (val) {
-      if (val || val === 0) {
-        const index = _.findIndex(this.apis, { id: parseInt(val) })
-        if (index > -1) {
-          this.initData(this.apis[index])
-        } else {
-          this.initData(null)
-        }
-      } else {
-        this.initData(null)
-      }
+    host: function (val) {
+      const { apis: { list } = { list: [] }} = val
+      const index = _.findIndex(list, { id: `${this.coverId}` })
+      this.coverId = index > -1 ? this.coverId : ''
     },
-    host: function () {
-      this.coverId = ''
-    },
-  },
-  mounted() {
   },
   methods: {
     initData(data) {
@@ -173,16 +160,20 @@ export default {
         }
       }
     },
-    onCoverDateChange() {
-      setTimeout(() => {
-        this.$emit('update', this.apiFeild)
-      }, 0)
+    onCoverDateChange(id) {
+      this.coverId = id
+      const [api] = this.apis.filter(a => `${a.id}` === `${id}`)
+      this.$refs.apiForm.resetFields()
+      this.initData(api || null)
+      this.$store.commit('mock/updateApiField', this.apiFeild)
     },
     getData() {
       return new Promise((resolve, reject) => {
         this.$refs.apiForm.validate((success) => {
           if (success) {
-            resolve({ ...this.apiFeild })
+            const rst = Object.assign({}, this.apiFeild)
+            delete rst['methods']
+            resolve(rst)
           } else {
             reject()
           }
@@ -191,9 +182,10 @@ export default {
     },
     setCoverId(id) {
       this.coverId = id
-      return new Promise((resolve) => setTimeout(() => {
-        resolve()
-      }, 100))
+      const [api] = this.apis.filter(a => a.id === id)
+      this.$refs.apiForm.resetFields()
+      this.initData(api || null)
+      this.$store.commit('mock/updateApiField', this.apiFeild)
     },
   },
 }
@@ -246,6 +238,21 @@ export default {
       }
       .delete{
         color: #d46b08;
+      }
+    }
+  }
+  .cover-itm{
+    .cover-pool{
+      & /deep/ .ivu-select-selection{
+        border: 1px solid #dcdee2;
+      }
+      & /deep/ .ivu-icon{
+        color: #808695;
+      }
+    }
+    & /deep/ .ivu-select-visible{
+      & /deep/ .ivu-select-selection{
+        box-shadow: 0 0 0 2px rgba(45,140,240,.2);
       }
     }
   }
