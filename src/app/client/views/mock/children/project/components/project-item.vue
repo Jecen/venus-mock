@@ -12,10 +12,10 @@
           icon='md-settings'
           @click='$emit("edit")'
           type='text' />
-        <Button class='name-btn' type='text' @click='$router.push(`/mock/overview/${info.id}`)'>{{info.name}}</Button>
+        <Button class='name-btn' type='text' @click='$router.push(`/mock/overview/${source.id}`)'>{{source.name}}</Button>
       </span>
       <span class='description'>
-        {{info.description}}
+        {{source.description}}
       </span>
     </div>
     <div class='detail-content'>
@@ -24,7 +24,7 @@
           <span class='des'>域名数:</span>
           <lcd-number
             class='host-count'
-            :value='info.hostCount'
+            :value='source.hostCount'
             color='#19be6b'
             size='35'
             background='#fff'
@@ -34,7 +34,7 @@
           <span class='des'>接口数:</span>
           <lcd-number
             class='host-count'
-            :value='info.apiCount'
+            :value='source.apiCount'
             color='#19be6b'
             size='35'
             background='#fff'
@@ -44,7 +44,7 @@
           <span class='des'>方法数:</span>
           <lcd-number
             class='host-count'
-            :value='info.methodCount'
+            :value='source.methodCount'
             color='#19be6b'
             size='35'
             background='#fff'
@@ -52,9 +52,10 @@
         </p>
       </div>
       <div class='mock-count'>
+        <span>总共 mock</span>
         <lcd-number
           class='count'
-          :value='info.recordCount'
+          :value='source.recordCount'
           color='#515a6e'
           size='55'
           background='#fff'
@@ -68,7 +69,7 @@
         class='del-btn-wrapper'
         trigger='click'
         transfer
-        v-if='info.hostCount === 0'
+        v-if='source.hostCount === 0'
         placement='top-end'
         title='确认删除?'
         @on-ok='$emit("del")'>
@@ -96,21 +97,29 @@ export default {
   props: {
     info: {
       type: Object,
-      default: () => ({
-        name: 'PROJECT-NAME',
-        description: 'PROJECT-DESCRIPTION',
-        hostCount: 0,
-        id: 0,
-        img: null,
-        recordCount: 5,
-        crDate: '',
-      }),
+      default: null,
     },
   },
   data() {
     return {
       isHover: false,
     }
+  },
+  computed: {
+    source() {
+      const { id, name, description, records: { total: recordCount }, hosts } = this.info
+      const { total: hostCount, list } = hosts
+      let apiCount = 0, methodCount = 0
+      list.forEach(({ apis: { total, list: methodList }}) => {
+        apiCount += total
+        methodList.forEach(({ methods: { total }}) => {
+          methodCount += total
+        })
+      })
+      return {
+        id, name, description, recordCount, hostCount, apiCount, methodCount,
+      }
+    },
   },
 }
 </script>
@@ -181,10 +190,17 @@ export default {
       position: absolute;
       top: 10px;
       right: 30px;
-      height: 90px;
+      height: 75px;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       color: #515a6e;
+      border-bottom: 2px solid #5cadff;
+      span{
+        padding-bottom: 5px;
+        color: #333;
+        font-weight: 500;
+        font-style: italic;
+      }
     }
     .del-btn-wrapper{
       position: absolute;

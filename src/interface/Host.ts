@@ -1,6 +1,7 @@
 import { Host as ImHost } from './index';
 import ApiHandler from '../handler/ApiHandler';
 import Api from './Api';
+import List from './List';
 
 export default class Host implements ImHost {
   id: number;
@@ -27,10 +28,10 @@ export default class Host implements ImHost {
 
   async apis() {
     const hostId = this.id;
-    const { list: data } = await new ApiHandler().getList({ id: hostId });
-    const apis = data.map((itm) => {
-      return new Api(itm);
-    });
-    return apis;
+    const data = await new ApiHandler().getList({ id: hostId });
+    const { list } = data;
+    return new List({...data, list: list.map((a) => {
+      return new Api(a);
+    })});
   }
 }

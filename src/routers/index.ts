@@ -5,34 +5,6 @@ import graphql from './graphql';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// import * as graphqlHTTP from 'koa-graphql';
-// import {
-//   graphql,
-//   GraphQLSchema,
-//   GraphQLObjectType,
-//   GraphQLString,
-// } from 'graphql';
-
-// const schema = new GraphQLSchema({
-//   query: new GraphQLObjectType({
-//     name: 'hello',
-//     fields: {
-//       number: {
-//         type: GraphQLString,
-//         resolve() {
-//           return '12333123';
-//         },
-//       },
-//       hello: {
-//         type: GraphQLString,
-//         resolve() {
-//           return 'world';
-//         },
-//       },
-//     },
-//   }),
-// });
-
 const router:Router = new Router();
 
 router

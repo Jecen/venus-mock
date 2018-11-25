@@ -117,6 +117,12 @@ abstract class Handler {
     return dict;
   }
 
+  public async checkRepeat(table, field, value) {
+    const [{ count }] =
+      await this.task(`SELECT COUNT(*) as count FROM ${table} WHERE ${field} = ?`, [value]);
+    return count > 0;
+  }
+
   public abstract handle(action: string, params: any): Promise<any>;
   public abstract obtain(params: any): Promise<any>;
   public abstract del(params: any): Promise<any>;

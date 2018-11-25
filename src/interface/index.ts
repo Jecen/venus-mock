@@ -1,4 +1,4 @@
-import { GraphQLObjectType, GraphQLString, buildSchema } from 'graphql';
+import { buildSchema } from 'graphql';
 
 export interface Project {
   id: number;
@@ -59,72 +59,161 @@ export interface Param {
 // String、Int、Float、Boolean 和 ID
 
 export const schema = buildSchema(`
-type Param {
-  id: ID!
-  projectId: Int!
-  hostId: Int!
-  apiId: Int!
-  methodId: Int!
-  key: String!
-  name: String!
-  type:  Int!
-  info: String
-  mandatory: Boolean!
-  crDate: String!
-}
+  type Record {
+    id: ID!
+    projectId: Int!
+    hostId: Int!
+    apiId: Int!
+    methodId: Int!
+    url: String!
+    success: Boolean!
+    msg: String
+    crDate: String!
+  }
 
-type Method {
-  id: ID!
-  projectId: Int!
-  hostId: Int!
-  apiId: Int!
-  name: String!
-  method: Int!
-  disable: Boolean!
-  result: String
-  params: [Param!]
-  crDate: String!
-}
+  type Param {
+    id: ID!
+    projectId: Int!
+    hostId: Int!
+    apiId: Int!
+    methodId: Int!
+    key: String!
+    name: String!
+    type:  Int!
+    info: String
+    mandatory: Boolean!
+    crDate: String!
+    records(page: Int = 1, size: Int = 10, query: String = "%"): RecordList
+  }
 
-type Api {
-  id: ID!
-  projectId: Int!
-  hostId: Int!
-  name: String!
-  url: String!
-  type: Int!
-  methods: [Method!]
-  crDate: String!
-}
+  type Method {
+    id: ID!
+    projectId: Int!
+    hostId: Int!
+    apiId: Int!
+    name: String!
+    method: Int!
+    disable: Boolean!
+    result: String
+    params (page: Int = 1, size: Int = 10, query: String = "%") : ParamList
+    crDate: String!
+    records(page: Int = 1, size: Int = 10, query: String = "%"): RecordList
+  }
 
-type Host {
-  id: ID!
-  projectId: Int!
-  name: String!
-  host: String!
-  port: Int!
-  path: String
-  protocol: Int!
-  online: Boolean!
-  apis: [Api!]
-  crDate: String!
-}
+  type Api {
+    id: ID!
+    projectId: Int!
+    hostId: Int!
+    name: String!
+    url: String!
+    type: Int!
+    methods (page: Int = 1, size: Int = 10, query: String = "%") : MethodList
+    crDate: String!
+    records(page: Int = 1, size: Int = 10, query: String = "%"): RecordList
+  }
 
-type Project {
-  id: ID!
-  name: String!
-  description: String
-  img: String
-  crDate: String!
-  hosts: [Host!]
-}
+  type Host {
+    id: ID!
+    projectId: Int!
+    name: String!
+    host: String!
+    port: Int!
+    path: String
+    protocol: Int!
+    online: Boolean!
+    apis (page: Int = 1, size: Int = 10, query: String = "%") : ApiList
+    crDate: String!
+    records(page: Int = 1, size: Int = 10, query: String = "%"): RecordList
+  }
 
-type Query {
-  param(id: Int!): Param
-  method(id: Int!): Method
-  api(id: Int!): Api
-  host(id: Int!): Host
-  project(id: Int!): Project
-  projectList: [Project!]
-}
+  type Project {
+    id: ID!
+    name: String!
+    description: String
+    img: String
+    crDate: String!
+    hosts (page: Int = 1, size: Int = 10, query: String = "%") : HostList
+    records(page: Int = 1, size: Int = 10, query: String = "%"): RecordList
+  }
+
+  interface List {
+    page: Int!
+    size: Int!
+    total: Int!
+  }
+
+  type ProjectList implements List {
+    page: Int!
+    size: Int!
+    total: Int!
+    list: [Project!]
+  }
+
+  type HostList implements List {
+    page: Int!
+    size: Int!
+    total: Int!
+    list: [Host!]
+  }
+
+  type ApiList implements List {
+    page: Int!
+    size: Int!
+    total: Int!
+    list: [Api!]
+  }
+
+  type MethodList implements List {
+    page: Int!
+    size: Int!
+    total: Int!
+    list: [Method!]
+  }
+
+  type ParamList implements List {
+    page: Int!
+    size: Int!
+    total: Int!
+    list: [Param!]
+  }
+
+  type RecordList implements List {
+    page: Int!
+    size: Int!
+    total: Int!
+    list: [Record!]
+  }
+
+  type Query {
+    param(id: Int!): Param
+    paramList(page: Int = 1, size: Int = 10, query: String = "%"): ParamList
+    method(id: Int!): Method
+    methodList(page: Int = 1, size: Int = 10, query: String = "%"): MethodList
+    api(id: Int!): Api
+    apiList(page: Int = 1, size: Int = 10, query: String = "%"): ApiList
+    host(id: Int!): Host
+    hostList(page: Int = 1, size: Int = 10, query: String = "%"): HostList
+    project(id: Int!): Project
+    projectList(page: Int = 1, size: Int = 10, query: String = "%") : ProjectList
+    records(page: Int = 1, size: Int = 10, query: String = "%"): RecordList
+  }
+
+  input projectField {
+    name: String!
+    description: String!
+    img: String
+  }
+
+  input updateProjectField {
+    id:  ID!
+    name: String!
+    description: String!
+    img: String
+  }
+
+  type Mutation {
+    insertProject(project: projectField!): ID
+    updateProject(project: updateProjectField!): ID
+    deleteProject(id: ID!): ID
+  }
 `);

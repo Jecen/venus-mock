@@ -77,7 +77,7 @@ export default {
   },
   methods: {
     fetchList() {
-      this.$store.dispatch('mock/getProjectsList')
+      this.$store.dispatch('mock/getProjects')
     },
     onEditeFinbish(needUpdate) {
       this.drawerVisible = false
@@ -88,7 +88,10 @@ export default {
       this.drawerVisible = true
     },
     del(p) {
-      this.$store.dispatch('mock/delProject', { id: p.id })
+      this.$store.dispatch('mock/deleteProject', { id: p.id })
+        .then(() => {
+          this.fetchList()
+        })
     },
   },
 }

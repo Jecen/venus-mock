@@ -63,7 +63,7 @@ export default {
     },
     uploadImg(file) {
       this.$store.dispatch('common/uploadImg', { file })
-        .then(({ data: { url }}) => {
+        .then(({ url }) => {
           this.projectFeild = {
             ...this.projectFeild,
             img: url,

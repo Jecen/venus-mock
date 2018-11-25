@@ -2,6 +2,7 @@
 import { Method as ImpMethod } from './index';
 import ParamHandler from '../handler/ParamHandler';
 import Param from './Param';
+import List from './List';
 
 export default class Method implements ImpMethod {
   id: number;
@@ -27,8 +28,10 @@ export default class Method implements ImpMethod {
   }
 
   async params() {
-    const paramHandler = new ParamHandler();
-    const { list: params } = await paramHandler.getList({ id: this.id });
-    return params.map((p) => { return new Param(p); });
+    const apiId = this.id;
+    const data = await new ParamHandler().getList({ id: apiId });
+    return new List({...data, list: data.list.map((p) => {
+      return new Param(p);
+    })});
   }
 }

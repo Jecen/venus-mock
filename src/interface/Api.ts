@@ -1,6 +1,7 @@
 import MethodHandler from '../handler/MethodHandler';
 import { Api as ImApi } from './index';
 import Method from './Method';
+import List from './List';
 
 export default class Api implements ImApi {
   id: number;
@@ -24,10 +25,9 @@ export default class Api implements ImApi {
 
   async methods() {
     const apiId = this.id;
-    const { list: data } = await new MethodHandler().getList({ id: apiId });
-    const methods = data.map((itm) => {
-      return new Method(itm);
-    });
-    return methods;
+    const data = await new MethodHandler().getList({ id: apiId });
+    return new List({...data, list: data.list.map((p) => {
+      return new Method(p);
+    })});
   }
 }

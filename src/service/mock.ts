@@ -175,7 +175,6 @@ class MockService {
    * @param rule 匹配的mock规则
    */
   private static recordMock(rule: IMockRule, msg = '', success = true) {
-    const dataBase: any = new db();
     const { host, api, mtd: method, url } = rule;
     const params = {
       url,
@@ -186,23 +185,8 @@ class MockService {
       apiId: api.id,
       success: success ? 1 : 0,
     };
-    const sql = `INSERT INTO records(
-			projectId, methodId, hostId, apiId, url, success, msg
-		  ) VALUES(?, ?, ?, ?, ?, ?, ?)`;
-    const paramKeys = [
-      'projectId',
-      'methodId',
-      'hostId',
-      'apiId',
-      'url',
-      'success',
-      'msg',
-    ];
-    dataBase.serialize(() => {
-      dataBase.run(sql, [...paramKeys.map(key => params[key])], (e) => {
-        log.sysInfo('mock 记录成功！');
-      });
-    });
+    const commonHandler = new CommonHandler();
+    commonHandler.saveMockRecords(params);
   }
   dataBase: any;
 
@@ -284,7 +268,7 @@ class MockService {
           apiId       INT       NOT NULL,
 			    name        VARCHAR   NOT NULL,
           method      INT       NOT NULL,
-          disable     INT       NOT NULL
+          disable     BOOLEAN       NOT NULL
                                 DEFAULT (0),
 				  result      VARCHAR,
 			    crDate      TIMESTAMP NOT NULL
@@ -316,7 +300,7 @@ class MockService {
           hostId	    INT		    NOT NULL,
           apiId       INT       NOT NULL,
           url			    VARCHAR   NOT NULL,
-          success     INT       NOT NULL
+          success     BOOLEAN   NOT NULL
                                 DEFAULT (1),
           msg			    VARCHAR,
           crDate      TIMESTAMP NOT NULL

@@ -1,6 +1,7 @@
 import Handler from './Handler';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import log from '../common/log';
 
 class CommonHandler extends Handler {
   constructor() {
@@ -28,13 +29,49 @@ class CommonHandler extends Handler {
     });
   }
 
-  private async getDictionaries(params: any): Promise<any> {
+  public async getDictionaries(params: any): Promise<any> {
     const { name } = params;
     const dictMap = await this.getDict(name);
     return new Promise(resolve => resolve({
       dictName: name,
       options: Object.keys(dictMap).map(key => dictMap[key]),
     }));
+  }
+
+  public async getMockRecords(params: any): Promise<any> {
+    const { target, id,  page = 1, size = 10, query = '%' } = params;
+
+    const sql = this.getQuerySQL('records', [
+      { type: this.queryType.like, key: `${target}Id`, value: id },
+      { type: this.queryType.like, key: 'url', value: query },
+    ]);
+
+    try {
+      const [list, total] = await this.listTask(sql, page, size);
+      return { page, size, total, list };
+    } catch (error) {
+      return error;
+    }
+  }
+
+  public async saveMockRecords(params: any): Promise<any>  {
+    const sql = `INSERT INTO records(
+			projectId, methodId, hostId, apiId, url, success, msg
+		  ) VALUES(?, ?, ?, ?, ?, ?, ?)`;
+    const paramKeys = [
+      'projectId',
+      'methodId',
+      'hostId',
+      'apiId',
+      'url',
+      'success',
+      'msg',
+    ];
+    this.dataBase.serialize(() => {
+      this.dataBase.run(sql, [...paramKeys.map(key => params[key])], (e) => {
+        log.sysInfo('mock 记录成功！');
+      });
+    });
   }
 
   public obtain(params: any): Promise<any> {
@@ -61,6 +98,9 @@ class CommonHandler extends Handler {
         break;
       case 'dict':
         runner = this.getDictionaries(params);
+        break;
+      case 'record':
+        runner = this.getMockRecords(params);
         break;
       default:
         break;

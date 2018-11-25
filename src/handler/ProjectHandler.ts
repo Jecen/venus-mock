@@ -41,51 +41,7 @@ class ProjectHandler extends Handler{
 
       try {
         const [list, total] = await this.listTask(sql, page, size);
-
-        const [rows, hosts, apis, methods] = await Promise.all([
-          this.recordTask('projectId', list.map(itm => itm.id)),
-          this.task(`
-            SELECT projectId, COUNT(*) as COUNT
-            FROM hosts
-            WHERE projectId IN (${list.map(itm => itm.id).join(', ')})
-            GROUP BY projectId
-          `),
-          this.task(`
-            SELECT projectId, COUNT(*) as COUNT
-            FROM apis
-            WHERE projectId IN (${list.map(itm => itm.id).join(', ')})
-            GROUP BY projectId
-          `),
-          this.task(`
-            SELECT projectId, COUNT(*) as COUNT
-            FROM methods
-            WHERE projectId IN (${list.map(itm => itm.id).join(', ')})
-            GROUP BY projectId
-          `),
-        ]);
-        const mapFunc = (arr) => {
-          const map = {};
-          arr.forEach((r) => {
-            map[r.projectId] = r ? r.COUNT : 0;
-          });
-          return map;
-        };
-        const recordMap = mapFunc(rows);
-        const hostMap = mapFunc(hosts);
-        const apiMap = mapFunc(apis);
-        const methodMap = mapFunc(methods);
-        resolve({
-          page,
-          size,
-          total,
-          list: list.map(itm => ({
-            ...itm,
-            apiCount: apiMap[itm.id] || 0,
-            hostCount: hostMap[itm.id] || 0,
-            methodCount: methodMap[itm.id] || 0,
-            recordCount: recordMap[itm.id] || 0,
-          })),
-        });
+        resolve({ page, size, total, list });
       } catch (error) {
         reject(error);
       }
@@ -99,22 +55,28 @@ class ProjectHandler extends Handler{
   public async insert(params: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
       const { name, description, img } = params;
-      const sql = `
+
+      const isRepeat = await this.checkRepeat('projects', 'name', name);
+      if (isRepeat) {
+        reject('项目名称重复,请重新输入');
+      } else {
+        const sql = `
         INSERT INTO projects( name, description, img )
         VALUES(?, ?, ?)
       `;
 
-      const checkRst = this.checkParams(params, ['name', 'description']);
+        const checkRst = this.checkParams(params, ['name', 'description']);
 
-      if (checkRst.pass) {
-        const data = await this.run(sql, [name, description, img]);
-        if (data) {
-          resolve({ id: data.lastID });
+        if (checkRst.pass) {
+          const data = await this.run(sql, [name, description, img]);
+          if (data.changes > 0) {
+            resolve({ id: data.lastID });
+          } else {
+            reject('新增失败');
+          }
         } else {
-          reject('新增失败');
+          reject(checkRst.message);
         }
-      } else {
-        reject(checkRst.message);
       }
     });
   }
@@ -134,20 +96,25 @@ class ProjectHandler extends Handler{
   public async update(params: any): Promise< any > {
     return new Promise(async (resolve, reject) => {
       const { id, name, description, img } = params;
-
-      const sql = 'UPDATE projects SET (name, description, img) = (?, ?, ?) WHERE id = ?';
-      const paramKeys = ['name', 'description'];
-      const checkRst = this.checkParams(params, paramKeys);
-      if (checkRst.pass) {
-        const data = await this.run(sql, [name, description, img, id]);
-        if (data) {
-          this.obtainLoader.clear(id);
-          resolve({ id: data.lastID });
-        } else {
-          reject('修改失败');
-        }
+      const isRepeat = await this.checkRepeat('projects', 'name', name);
+      if (isRepeat) {
+        reject('项目名称重复,请重新输入');
       } else {
-        reject(checkRst.message);
+        const sql = 'UPDATE projects SET (name, description, img) = (?, ?, ?) WHERE id = ?';
+        const paramKeys = ['name', 'description'];
+        const checkRst = this.checkParams(params, paramKeys);
+        if (checkRst.pass) {
+          const data = await this.run(sql, [name, description, img, id]);
+          console.log(data);
+          if (data.changes > 0) {
+            this.obtainLoader.clear(id);
+            resolve({ id });
+          } else {
+            reject('修改失败');
+          }
+        } else {
+          reject(checkRst.message);
+        }
       }
     });
   }

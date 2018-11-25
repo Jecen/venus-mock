@@ -1,8 +1,11 @@
 import { Project as ImProject } from './index';
 import HostHandler from '../handler/HostHandler';
+import CommonHandler from '../handler/CommonHandler';
 import Host from './Host';
 
 import { GraphQLError } from 'graphql';
+import List from './List';
+import Record from './Record';
 
 export default class Project implements ImProject {
   id: number;
@@ -17,9 +20,9 @@ export default class Project implements ImProject {
     ];
     Object.keys(param).forEach((key) => {
       if (props.indexOf(key) > -1) {
-        if (!param[key]) {
-          throw new GraphQLError('test GraphQl');
-        }
+        // if (!param[key]) {
+        //   throw new GraphQLError('test GraphQl');
+        // }
         this[key] = param[key];
       }
     });
@@ -27,10 +30,23 @@ export default class Project implements ImProject {
 
   async hosts() {
     const projectId = this.id;
-    const { list: data } = await new HostHandler().getList({ id: projectId });
-    const hosts = data.map((itm) => {
-      return new Host(itm);
+    const data = await new HostHandler().getList({ id: projectId });
+    const { list } = data;
+    return new List({...data, list: list.map((p) => {
+      return new Host(p);
+    })});
+  }
+
+  async records(params) {
+    const projectId = this.id;
+    const data = await new CommonHandler().getMockRecords({
+      target: 'project',
+      id: projectId,
+      ...params,
     });
-    return hosts;
+    const { list } = data;
+    return new List({...data, list: list.map((r) => {
+      return new Record(r);
+    })});
   }
 }
