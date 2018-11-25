@@ -63,7 +63,44 @@ const actions = {
       return data
     }
   },
-
+  async getOverViewDate({ commit }, payload) { // eslint-disable-line
+    const { data, success } = await http.post('/graphql', {
+      query: `query ($id: Int!) { project(id: $id) {
+        id name description img crDate
+        hosts (page: 1, size: 200) {
+          list {
+            id name host port path protocol protocolName online
+            apis (page: 1, size: 200) {
+              list {
+                id name url type
+                methods (page: 1, size: 200) {
+                  list {
+                    id name method methodName disable
+                    params (page: 1, size: 200) {
+                      list {
+                        id name
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        records (page: 1, size: 200) {
+          total
+          list {
+            success
+          }
+        }
+      }}`,
+      variable: { id: parseInt(payload.id) },
+    })
+    if (success) {
+      commit('updateOverView', data)
+      return data
+    }
+  },
   // insertHost({ state }, payload) { // eslint-disable-line
   //   return apiFunc[hostApi.INSERT_HOST](payload)
   // },
@@ -238,6 +275,9 @@ const mutations = {
   updateProjects(state, payload) {
     state.projects = payload
   },
+  updateOverView(state, payload) {
+    state.overView = payload
+  },
 }
 
 
@@ -247,6 +287,9 @@ const getters = {
   },
   projects(state) {
     return state.projects
+  },
+  overview(state) {
+    return state.overView
   },
 }
 

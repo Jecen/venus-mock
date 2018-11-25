@@ -187,4 +187,6 @@ class ParamHandler extends Handler{
   }
 }
 
-export default ParamHandler;
+const handler:ParamHandler =  new ParamHandler();
+
+export { handler, ParamHandler };

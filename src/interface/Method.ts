@@ -1,9 +1,9 @@
 
 import { Method as ImpMethod } from './index';
-import ParamHandler from '../handler/ParamHandler';
+import { handler as paramHandler } from '../handler/ParamHandler';
+import { handler as commonHandler } from '../handler/CommonHandler';
 import Param from './Param';
 import List from './List';
-
 export default class Method implements ImpMethod {
   id: number;
   projectId: number;
@@ -29,9 +29,15 @@ export default class Method implements ImpMethod {
 
   async params() {
     const apiId = this.id;
-    const data = await new ParamHandler().getList({ id: apiId });
+    const data = await paramHandler.getList({ id: apiId });
     return new List({...data, list: data.list.map((p) => {
       return new Param(p);
     })});
+  }
+
+  async methodName() {
+    const method = this.method;
+    const dictMap = await commonHandler.obtainDict('method');
+    return dictMap[method].name;
   }
 }

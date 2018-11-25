@@ -1,15 +1,13 @@
 <template>
   <div class='cp host-box'>
     <div v-if='host' class='info-wrapper'>
-      <p :class='["host-title", online === 1 ? "online" : "offline"]' @click.self='showApi()'>
+      <p :class='["host-title", online ? "online" : "offline"]' @click.self='showApi()'>
         <i-switch
           class='online-switch'
           :loading='isSwitching'
           size='small'
           v-model='online'
-          :title='online === 1 ? "online" : "offline"'
-          :trueValue='1'
-          :falseValue='0' />
+          :title='online ? "online" : "offline"' />
         <Button
           class='host-name'
           :title='`[${host.name}]`'
@@ -83,10 +81,6 @@ export default {
       type: Object,
       default: null,
     },
-    apis: {
-      type: Array,
-      default: () => ([]),
-    },
     insertFrom: {
       type: Object,
       default: null,
@@ -95,13 +89,17 @@ export default {
   data() {
     return {
       api: [],
-      online: 1,
+      online: true,
       isSwitching: false,
       apiVisible: false,
       isFetchApis: false,
     }
   },
   computed: {
+    apis() {
+      const { apis } = this.host
+      return apis ? apis.list : []
+    },
     apiContentHeihgt() {
       const apiItmHeight = 96
       const holderHeight = 64

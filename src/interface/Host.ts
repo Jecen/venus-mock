@@ -1,7 +1,8 @@
 import { Host as ImHost } from './index';
-import ApiHandler from '../handler/ApiHandler';
+import { handler as apiHandler } from '../handler/ApiHandler';
 import Api from './Api';
 import List from './List';
+import { handler as commonHandler } from '../handler/CommonHandler';
 
 export default class Host implements ImHost {
   id: number;
@@ -28,10 +29,16 @@ export default class Host implements ImHost {
 
   async apis() {
     const hostId = this.id;
-    const data = await new ApiHandler().getList({ id: hostId });
+    const data = await apiHandler.getList({ id: hostId });
     const { list } = data;
     return new List({...data, list: list.map((a) => {
       return new Api(a);
     })});
+  }
+
+  async protocolName() {
+    const protocol = this.protocol;
+    const dictMap = await commonHandler.obtainDict('protocol');
+    return dictMap[protocol].name;
   }
 }

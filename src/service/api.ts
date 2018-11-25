@@ -1,12 +1,12 @@
 import log from '../common/log';
 import responseHelper from '../common/responseHelper';
 
-import ProjectHandler from '../handler/ProjectHandler';
-import HostHandler from '../handler/HostHandler';
-import CommonHandler from '../handler/CommonHandler';
-import ApiHandler from '../handler/ApiHandler';
-import MethodHandler from '../handler/MethodHandler';
-import ParamHandler from '../handler/ParamHandler';
+import { handler as projectHandler, ProjectHandler } from '../handler/ProjectHandler';
+import { handler as hostHandler, HostHandler } from '../handler/HostHandler';
+import { handler as commonHandler, CommonHandler } from '../handler/CommonHandler';
+import { handler as apiHandler, ApiHandler } from '../handler/ApiHandler';
+import { handler as methodHandler, MethodHandler } from '../handler/MethodHandler';
+import { handler as paramHandler, ParamHandler } from '../handler/ParamHandler';
 
 class ApiService {
 
@@ -18,12 +18,12 @@ class ApiService {
   paramHandler: ParamHandler;
 
   constructor() {
-    this.projectHandler = new ProjectHandler();
-    this.hostHandler = new HostHandler();
-    this.commonHandler = new CommonHandler();
-    this.apiHandler = new ApiHandler();
-    this.methodHandler = new MethodHandler();
-    this.paramHandler = new ParamHandler();
+    this.projectHandler = projectHandler;
+    this.hostHandler = hostHandler;
+    this.commonHandler = commonHandler;
+    this.apiHandler = apiHandler;
+    this.methodHandler = methodHandler;
+    this.paramHandler = paramHandler;
     log.sysInfo('API SERVICE IS READY');
   }
 

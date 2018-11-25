@@ -234,4 +234,6 @@ class HostHandler extends Handler{
   }
 }
 
-export default HostHandler;
+const handler:HostHandler =  new HostHandler();
+
+export { handler, HostHandler };

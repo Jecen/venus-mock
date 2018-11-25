@@ -7,9 +7,9 @@
     </div>
     <div class='dashboard'>
       <p>创建日期：{{info.crDate}}</p>
-      <p>模拟次数：{{info.records}}</p>
-      <p>模拟成功：{{info.successCount}}</p>
-      <p>模拟失败：{{info.failureCount}}</p>
+      <p>模拟次数：{{record.total}}</p>
+      <p>模拟成功：{{record.successCount}}</p>
+      <p>模拟失败：{{record.failureCount}}</p>
     </div>
   </div>
 </template>
@@ -23,12 +23,28 @@ export default {
       default: () => ({
         name: '[NAME]',
         description: '[DESCRIPTION]',
-        img: '111',
+        img: '',
         mockCount: 0,
       }),
     },
   },
   computed: {
+    record() {
+      const { records: { list, total } = { list: [], total: 0 }} = this.info
+      let successCount = 0, failureCount = 0
+      list.forEach(({ success }) => {
+        if (success) {
+          successCount += 1
+        } else {
+          failureCount += 1
+        }
+      })
+      return {
+        total,
+        successCount,
+        failureCount,
+      }
+    },
   },
   mounted() {
   },

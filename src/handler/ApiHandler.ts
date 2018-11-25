@@ -226,4 +226,6 @@ class ApiHandler extends Handler{
   }
 }
 
-export default ApiHandler;
+const handler:ApiHandler =  new ApiHandler();
+
+export { handler, ApiHandler };

@@ -1,7 +1,5 @@
 
 import Handler from './Handler';
-import HostHandler from './HostHandler';
-
 import * as DataLoader  from 'dataloader';
 
 class ProjectHandler extends Handler{
@@ -174,4 +172,6 @@ class ProjectHandler extends Handler{
   }
 }
 
-export default ProjectHandler;
+const handler:ProjectHandler =  new ProjectHandler();
+
+export { handler, ProjectHandler };

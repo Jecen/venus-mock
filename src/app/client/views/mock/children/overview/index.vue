@@ -12,12 +12,10 @@
           v-for='h in hosts'
           :key='h.id'
           :host='h'
-          :apis='apiMap[h.id] || []'
           :insertFrom='$refs["insertFrom"]'
           @testApi='time => {currentTimeStamp = time; testBoard = true}'
           @edit='editHost(h)'
           @del='delHost(h)'
-          @apiVisible='(v) => fetchApis(h, v)'
           @update='getData()' />
       </Col>
       <Col
@@ -100,8 +98,6 @@ export default {
   },
   data() {
     return {
-      project: '',
-      hosts: [],
       hostColumn: [
         {
           type: 'index',
@@ -182,6 +178,17 @@ export default {
   computed: {
     protocolDict() {
       return this.$store.getters['common/dict']('protocol') || { options: [] }
+    },
+    overview() {
+      return this.$store.getters['mock/overview']
+    },
+    project() {
+      const { project } = this.overview
+      return project
+    },
+    hosts() {
+      const { hosts: { list } = { list: [] }} = this.project || {}
+      return list
     },
   },
   created() {

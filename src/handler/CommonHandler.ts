@@ -2,10 +2,24 @@ import Handler from './Handler';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import log from '../common/log';
+import * as DataLoader  from 'dataloader';
 
 class CommonHandler extends Handler {
+  dictLoader: any;
+
   constructor() {
     super();
+
+    this.initDictLoader();
+  }
+
+  private initDictLoader() {
+    this.dictLoader = new DataLoader(async (names) => {
+      const dicts = await Promise.all(
+        names.map(name => this.getDict(name)),
+      );
+      return dicts;
+    });
   }
 
   /**
@@ -31,11 +45,15 @@ class CommonHandler extends Handler {
 
   public async getDictionaries(params: any): Promise<any> {
     const { name } = params;
-    const dictMap = await this.getDict(name);
+    const dictMap = await this.obtainDict(name);
     return new Promise(resolve => resolve({
       dictName: name,
       options: Object.keys(dictMap).map(key => dictMap[key]),
     }));
+  }
+
+  public obtainDict(name: string) {
+    return this.dictLoader.load(name);
   }
 
   public async getMockRecords(params: any): Promise<any> {
@@ -109,4 +127,6 @@ class CommonHandler extends Handler {
   }
 }
 
-export default CommonHandler;
+const handler:CommonHandler =  new CommonHandler();
+
+export { handler, CommonHandler };

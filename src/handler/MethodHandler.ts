@@ -1,5 +1,5 @@
 import Handler from './Handler';
-import ParamHandler from './ParamHandler';
+import { handler as paramHander, ParamHandler } from './ParamHandler';
 import * as MockModule from '../common/MockRules';
 const mockModule: any = MockModule;
 
@@ -9,7 +9,7 @@ class MethodHandler extends Handler{
 
   constructor() {
     super();
-    this.paramHandler = new ParamHandler();
+    this.paramHandler = paramHander;
   }
 
   /**
@@ -239,4 +239,6 @@ class MethodHandler extends Handler{
   }
 }
 
-export default MethodHandler;
+const handler:MethodHandler =  new MethodHandler();
+
+export { handler, MethodHandler };

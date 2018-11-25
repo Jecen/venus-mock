@@ -8,12 +8,11 @@ import { Api, Host, Method, Param } from '../interface';
 const fetch = require('node-fetch');
 import * as venusFetch from 'venus-fetch';
 
-import HostHandler from '../handler/HostHandler';
-import ApiHandler from '../handler/ApiHandler';
-import MethodHandler from '../handler/MethodHandler';
-import ParamHandler from '../handler/ParamHandler';
+import { handler as hostHandler } from '../handler/HostHandler';
+import { handler as commonHandler } from '../handler/CommonHandler';
+import { handler as apiHandler } from '../handler/ApiHandler';
+import { handler as methodHandler } from '../handler/MethodHandler';
 import io from '../common/io';
-import CommonHandler from '../handler/CommonHandler';
 
 const mockModule: any = MockModule;
 interface IMockRule {
@@ -185,7 +184,6 @@ class MockService {
       apiId: api.id,
       success: success ? 1 : 0,
     };
-    const commonHandler = new CommonHandler();
     commonHandler.saveMockRecords(params);
   }
   dataBase: any;
@@ -394,10 +392,6 @@ class MockService {
       timeout: 5000,
     };
     const http = venusFetch(opt, fetch);
-    const hostHandler = new HostHandler();
-    const apiHandler = new ApiHandler();
-    const methodHandler = new MethodHandler();
-    const commonHandler = new CommonHandler();
     const protocolDict = await commonHandler.getDict('protocol');
     const { id, host, port, protocol, path, name } = await hostHandler.obtain({
       id: hostId,

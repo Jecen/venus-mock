@@ -93,6 +93,7 @@ export const schema = buildSchema(`
     apiId: Int!
     name: String!
     method: Int!
+    methodName: String!
     disable: Boolean!
     result: String
     params (page: Int = 1, size: Int = 10, query: String = "%") : ParamList
@@ -120,6 +121,7 @@ export const schema = buildSchema(`
     port: Int!
     path: String
     protocol: Int!
+    protocolName: String!
     online: Boolean!
     apis (page: Int = 1, size: Int = 10, query: String = "%") : ApiList
     crDate: String!

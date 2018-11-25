@@ -1,5 +1,5 @@
 <template>
-  <div class='cp api-item' :style='host.online === 1 ? "" : `filter: grayscale(100%);`' v-if='api'>
+  <div class='cp api-item' :style='host.online ? "" : `filter: grayscale(100%);`' v-if='api'>
     <p class='api-name'>
       {{api.name}}
       <RadioGroup
@@ -16,7 +16,7 @@
       <Button
         class='method-btn'
         size='small'
-        v-for='m in api.methods'
+        v-for='m in methods'
         :key='m.id'
         type='text'>
         {{m.methodName.toUpperCase()}}
@@ -32,7 +32,7 @@
       <span class='api-date'>{{api.crDate}}</span>
     </p>
     <Button
-      v-if='api.methods.length === 0'
+      v-if='methods.length === 0'
       class='del-btn'
       size='small'
       icon='md-trash'
@@ -71,6 +71,10 @@ export default {
   computed: {
     typeDict() {
       return this.$store.getters['common/dict']('mockType') || { options: [] }
+    },
+    methods() {
+      const { methods } = this.api
+      return methods ? methods.list : []
     },
   },
   watch: {
