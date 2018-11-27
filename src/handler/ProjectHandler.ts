@@ -103,7 +103,6 @@ class ProjectHandler extends Handler{
         const checkRst = this.checkParams(params, paramKeys);
         if (checkRst.pass) {
           const data = await this.run(sql, [name, description, img, id]);
-          console.log(data);
           if (data.changes > 0) {
             this.obtainLoader.clear(id);
             resolve({ id });

@@ -85,6 +85,45 @@ class ParamHandler extends Handler{
     });
   }
 
+  public async batchInsert (params: [any]): Promise<any> {
+    // const sql =
+    return new Promise(async (resolve, reject) => {
+      const value = [];
+      const cSqls = params.map((p) => {
+        const { methodId, key, name, type, info, mandatory, projectId, hostId, apiId } = p;
+        const checkRst = this.checkParams(
+          p,
+          ['methodId', 'key', 'name', 'type', 'info', 'mandatory',  'projectId', 'hostId', 'apiId'],
+         );
+
+        if (!checkRst.pass) {
+          reject(`在 key 为${key}的参数信息中 [${checkRst.message}]`);
+        }
+        const valStr =
+          value.push(
+            methodId, key, name,
+            type, info, mandatory ? 1 : 0,
+            projectId, hostId, apiId);
+        return `
+          SELECT ?,?,?,?,?,?,?,?,?
+        `;
+      });
+      let sql = `
+        INSERT INTO params( methodId, key, name, type, info, mandatory, projectId, hostId, apiId )
+      `;
+      sql += cSqls.join(`
+        UNION ALL
+      `);
+      const data = await this.run(sql, value);
+      if (data.changes > 0) {
+        mockModule.update();
+        resolve(true);
+      } else {
+        reject('批量新增失败');
+      }
+    });
+  }
+
    /**
    * 修改host信息
    * @param params 请求参数

@@ -213,9 +213,58 @@ export const schema = buildSchema(`
     img: String
   }
 
+  input hostField {
+    projectId: Int!
+    name: String!
+    host: String!
+    path: String!
+    port: Int!
+    online: Boolean!
+    protocol: Int!
+  }
+
+  input apiField {
+    projectId: Int!
+    hostId: Int!
+    name: String!
+    url: String!
+    type: Int!
+  }
+
+  input methodField {
+    projectId: Int!
+    hostId: Int!
+    apiId: Int!
+    name: String!
+    method: Int!
+    disable: Boolean!
+    result: String
+  }
+
+  input paramField {
+    projectId: Int!
+    hostId: Int!
+    apiId: Int!
+    methodId: Int!
+    key: String!
+    name: String!
+    type:  Int!
+    info: String
+    mandatory: Boolean!
+  }
+
   type Mutation {
     insertProject(project: projectField!): ID
     updateProject(project: updateProjectField!): ID
     deleteProject(id: ID!): ID
+
+    insertHost(host: hostField!): ID
+
+    insertApi(api: apiField!): ID
+
+    insertMethod(method: methodField!): ID
+
+    insertParams(params: [paramField]!): Boolean
+
   }
 `);

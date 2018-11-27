@@ -32,7 +32,7 @@
 <script>
 import hostForm from './cell/host-form'
 import apiForm from './cell/api-form'
-import methodForm from './cell/method-from'
+import methodForm from './cell/method-form'
 export default {
   name: 'InsertForm',
   components: {
@@ -84,47 +84,69 @@ export default {
     dismiss() {
       this.$emit('dismiss')
     },
-    async initHost(id) {
-      const apis = await this.$store.dispatch('mock/getHostOverviewData', { id: parseInt(id) })
-      this.apiMap = {
-        ...this.apiMap,
-        [id]: apis,
-      }
-      return this.$refs.host.setCoverId(id)
-    },
-    initApi(api) {
-      this.api = api
-      return this.$refs.api.setCoverId(api.id)
-    },
-    initMethod(data) {
-      console.log(data)
-    },
     methodChange(m) {
       this.saveDisable = !!m.id
     },
     async submit() {
       this.isSaveing = true
-      try {
-        const hostData = await this.$refs.host.getData()
-        !hostData.id && delete hostData['id']
-        const apiData = await this.$refs.api.getData()
-        !apiData.id && delete apiData['id']
-        const methodData = await this.$refs.method.getData()
-        Object.keys(methodData).forEach(m => {
-          !methodData[m].id && delete methodData[m]['id']
-          !methodData[m].name && delete methodData[m]
-        })
-        const success = await this.$store.dispatch('mock/addMockRule', {
-          id: this.projectId,
-          host: hostData,
-          api: apiData,
-          method: methodData,
-        })
-        console.log(success)
-      } catch (error) {
-        console.log(error)
+      const { host, api, method: methodField } = this.$store.getters['mock/insertField']
+      const { params: { list: params }} = methodField
+      const method = Object.assign({}, methodField)
+      delete method['params']
+      const idField = {
+        projectId: parseInt(this.projectId),
       }
-      this.isSaveing = false
+      try {
+        if (!host.id) { // 新增 host
+          const temp = Object.assign({}, host)
+          delete temp.id
+          temp['online'] = temp.online === 1
+          idField['hostId'] = parseInt((await this.$store.dispatch('mock/insertHost', {
+            ...temp,
+            ...idField,
+
+          })).insertHost)
+        } else {
+          idField['hostId'] = parseInt(host.id)
+        }
+
+        if (!api.id) { // 新增 host
+          const temp = Object.assign({}, api)
+          delete temp.id
+          idField['apiId'] = parseInt((await this.$store.dispatch('mock/insertApi', {
+            ...temp,
+            ...idField,
+          })).insertApi)
+        } else {
+          idField['apiId'] = parseInt(api.id)
+        }
+
+        const rspMethod = await this.$store.dispatch('mock/insertMethod', {
+          ...method,
+          ...idField,
+          disable: false,
+        })
+        const { insertMethod: methodId } = rspMethod
+        idField['methodId'] = parseInt(methodId)
+        const rspParams = await this.$store.dispatch('mock/insertParams', params.map(p => {
+          const temp = Object.assign({}, p)
+          delete temp['index']
+          return {
+            ...temp,
+            ...idField,
+            mandatory: temp.mandatory === 1,
+          }
+        }))
+        if (rspParams) {
+          this.isSaveing = false
+          this.$emit('submit')
+          this.$refs.host.clear()
+          this.$refs.api.clear()
+          this.$refs.method.clear()
+        }
+      } catch (error) {
+        this.isSaveing = false
+      }
     },
   },
 }

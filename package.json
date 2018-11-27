@@ -90,7 +90,7 @@
     "osenv": "^0.1.4",
     "pinkie-promise": "^2.0.1",
     "postcss": "^6.0.14",
-    "ps-tree": "^1.1.0",
+    "ps-tree": "^1.2.0",
     "readable-stream": "^2.3.3",
     "request": "^2.83.0",
     "semver": "^5.4.1",

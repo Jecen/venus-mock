@@ -5,19 +5,23 @@
     </p>
     <Form
       ref='methodFrom'
-      :model='methodFeild[currentMethod]'
+      :model='methodField'
       :rules='methodRule'
       :label-width='80'>
       <Row>
         <Col span='11'>
-          <FormItem label='请求类型'>
-            <RadioGroup class='radio' v-model='currentMethod' type='button'>
+          <FormItem label='请求类型' prop='method'>
+            <RadioGroup
+              class='radio'
+              v-model='currentMethod'
+              @on-change='onMethodChange'
+              type='button'>
               <Radio
                 class='m-btn'
                 :style='`color: ${m.color};`'
                 v-for='m in methodDict'
                 :key='m.id'
-                :label='m.key'>{{m.name}}</Radio>
+                :label='m.method'>{{m.name}}</Radio>
             </RadioGroup>
           </FormItem>
         </Col>
@@ -28,7 +32,7 @@
               :clearable='!disabled'
               placeholder='请输入名称'
               :disabled='disabled'
-              v-model='methodFeild[currentMethod].name'>
+              v-model='methodField.name'>
             </Input>
           </FormItem>
         </Col>
@@ -37,7 +41,7 @@
         <Col span='24'>
           <FormItem label='参数' prop='params'>
             <div class='params-list'>
-              <p class='params-itm' v-for='(p, index) in methodFeild[currentMethod].params' :key='p.id'>
+              <p class='params-itm' v-for='(p, index) in params' :key='p.id'>
                 <span class='params-key'>
                   {{p.key}}
                 </span>
@@ -65,7 +69,7 @@
               <p v-if='!disabled' style='padding: 0 16px;'>
                 <Button type='primary' size='small' @click='showParamsModal()'>新增</Button>
               </p>
-              <p v-else style='padding: 0 16px;'>
+              <p v-else-if='params.length === 0' style='padding: 0 16px;'>
                 暂无参数
               </p>
             </div>
@@ -78,7 +82,7 @@
               :clearable='!disabled'
               placeholder='请输入返回数据, 默认返回 null'
               type='textarea'
-              v-model='methodFeild[currentMethod].result'></Input>
+              v-model='methodField.result'></Input>
           </FormItem>
         </Col>
       </Row>
@@ -151,62 +155,40 @@
 <script>
 export default {
   name: 'MethodFrom',
-  props: {
-    methods: {
-      type: Array,
-      default: () => ([]),
-    },
-  },
   data() {
     return {
+      currentMethod: 3,
       methodDict: [
         {
           name: 'GET',
           key: 'get',
           color: '#5cadff',
+          method: 3,
         },
         {
           name: 'POST',
           key: 'post',
           color: '#2f54eb',
+          method: 4,
         },
         {
           name: 'PUT',
           key: 'put',
           color: '#08979c',
+          method: 5,
         },
         {
           name: 'DELETE',
           key: 'delete',
           color: '#d46b08',
+          method: 6,
         },
       ],
-      currentMethod: 'get',
-      methodFeild: {
-        get: {
-          name: '',
-          method: 3,
-          result: '',
-          params: [],
-        },
-        post: {
-          name: '',
-          method: 4,
-          result: '',
-          params: [],
-        },
-        put: {
-          name: '',
-          method: 5,
-          result: '',
-          params: [],
-        },
-        delete: {
-          name: '',
-          method: 6,
-          result: '',
-          params: [],
-        },
+      methodField: {
+        name: '',
+        method: 3,
+        result: '',
+        params: { list: [] },
       },
       methodRule: {
         name: [{
@@ -266,8 +248,16 @@ export default {
     }
   },
   computed: {
+    methods() {
+      return this.$store.getters['mock/methods']
+    },
+    params() {
+      const { params: { list }} = this.methodField
+      return list
+    },
+
     disabled() {
-      return !!this.methodFeild[this.currentMethod].id
+      return !!this.methodField.id
     },
     typeDict() {
       return this.$store.getters['common/dict']('paramsType') || { options: [] }
@@ -284,46 +274,31 @@ export default {
   watch: {
     methods: function (val) {
       const defaultMethods = {
-        get: {
-          name: '',
-          method: 3,
-          result: '',
-          params: [],
-        },
-        post: {
-          name: '',
-          method: 4,
-          result: '',
-          params: [],
-        },
-        put: {
-          name: '',
-          method: 5,
-          result: '',
-          params: [],
-        },
-        delete: {
-          name: '',
-          method: 6,
-          result: '',
-          params: [],
-        },
+        name: '',
+        method: 3,
+        result: '',
+        params: { list: [] },
       }
       if (val.length > 0) {
-        val.forEach(m => {
-          const { methodName } = m
-          this.methodFeild = {
-            ...this.methodFeild,
-            [methodName]: m,
-          }
-        })
+        const [m] = val.filter(m => m.method === this.methodField.method)
+        this.methodField = m
       } else {
-        this.methodFeild = defaultMethods
+        this.methodField = defaultMethods
       }
-      this.$emit('methodChange', this.methodFeild[this.currentMethod])
+      this.$emit('methodChange', this.methodField)
     },
-    currentMethod: function (m) {
-      this.$emit('methodChange', this.methodFeild[m])
+    currentMethod: function (val) {
+      const [m] = this.methods.filter(m => m.method === val)
+      this.methodField = m || {
+        name: '',
+        method: val,
+        result: '',
+        params: { list: [] },
+      }
+      this.$emit('methodChange', this.methodField)
+    },
+    methodField: function (val) {
+      this.$store.commit('mock/updateMethodField', val)
     },
   },
   methods: {
@@ -344,25 +319,18 @@ export default {
       this.$refs['paramsForm'].validate((success) => {
         if (success) {
           const { index } = this.currentParams
-          const params = [...this.methodFeild[this.currentMethod].params]
+          const params = [...this.methodField.params.list]
           if (index > -1) {
             params[index] = Object.assign({}, this.currentParams)
-            this.methodFeild = {
-              ...this.methodFeild,
-              [this.currentMethod]: {
-                ...this.methodFeild[this.currentMethod],
-                params,
-              },
+            this.methodField = {
+              ...this.methodField,
+              params: { list: params },
             }
           } else {
-            this.methodFeild = {
-              ...this.methodFeild,
-              [this.currentMethod]: {
-                ...this.methodFeild[this.currentMethod],
-                params: [...params, Object.assign({}, this.currentParams)],
-              },
+            this.methodField = {
+              ...this.methodField,
+              params: { list: [...params, Object.assign({}, this.currentParams)] },
             }
-            console.log(this.methodFeild)
           }
           this.dismiss()
         }
@@ -380,26 +348,42 @@ export default {
       this.paramsModal = false
     },
     delParam(index) {
-      const params = [...this.methodFeild[this.currentMethod].params]
+      const params = [...this.methodField.params.list]
       params.splice(index, 1)
-      this.methodFeild = {
-        ...this.methodFeild,
-        [this.currentMethod]: {
-          ...this.methodFeild[this.currentMethod],
-          params,
-        },
+      this.methodField = {
+        ...this.methodField,
+        params: { list: params },
       }
     },
     getData() {
       return new Promise((resolve, reject) => {
         this.$refs.methodFrom.validate((success) => {
           if (success) {
-            resolve({ ...this.methodFeild })
+            resolve({ ...this.methodField })
           } else {
             reject()
           }
         })
       })
+    },
+    clear() {
+      this.currentParams = {
+        index: -1,
+        key: '',
+        name: '',
+        type: '',
+        info: '',
+        mandatory: 1,
+      }
+      this.$refs.paramsForm.resetFields()
+      this.methodField = {
+        name: '',
+        method: 3,
+        result: '',
+        params: { list: [] },
+      }
+      this.$refs.methodFrom.resetFields()
+      this.$store.commit('mock/updateMethodField', null)
     },
   },
 }

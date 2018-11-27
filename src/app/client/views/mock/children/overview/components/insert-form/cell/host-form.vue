@@ -3,7 +3,7 @@
     <p class='form-title'>Host</p>
     <Form
       ref='hostForm'
-      :model='hostFeild'
+      :model='hostField'
       :rules='hostRule'
       :label-width='80'>
       <FormItem label='名称' prop='name' class='cover-itm'>
@@ -14,7 +14,8 @@
               :clearable='!disabled'
               placeholder='请输入名称'
               :disabled='disabled'
-              v-model='hostFeild.name'>
+              @input='update'
+              v-model='hostField.name'>
             </Input>
           </Col>
           <Col span='4' style='text-align: center;'> Cover By </Col>
@@ -46,8 +47,9 @@
               :clearable='!disabled'
               type='text'
               :disabled='disabled'
+              @input='update'
               placeholder='请输入域名,例如：api.venus-mock.com'
-              v-model='hostFeild.host'></Input>
+              v-model='hostField.host'></Input>
           </FormItem>
         </Col>
          <Col span='8'>
@@ -57,7 +59,7 @@
               placeholder='请输入端口号,默认为80'
               type='text'
               :clearable='!disabled'
-              v-model='hostFeild.port'></Input>
+              v-model='hostField.port'></Input>
           </FormItem>
         </Col>
         <Col span='16'>
@@ -66,14 +68,16 @@
               :disabled='disabled'
               placeholder='请输入路径,例如：/h5/v1'
               type='text'
+              @input='update'
               :clearable='!disabled'
-              v-model='hostFeild.path'></Input>
+              v-model='hostField.path'></Input>
           </FormItem>
         </Col>
         <Col span='8'>
           <FormItem label='协议' prop='protocol'>
             <RadioGroup
-              v-model='hostFeild.protocol'
+              v-model='hostField.protocol'
+              @input='update'
               type='button'>
               <Radio
                 v-for='opt in protocolDict ? protocolDict.options : []'
@@ -92,15 +96,9 @@
 <script>
 export default {
   name: 'HostForm',
-  props: {
-    hosts: {
-      type: Array,
-      default: () => ([]),
-    },
-  },
   data() {
     return {
-      hostFeild: {
+      hostField: {
         id: '',
         name: '',
         host: '',
@@ -169,16 +167,33 @@ export default {
     protocolDict() {
       return this.$store.getters['common/dict']('protocol')
     },
+    hosts() {
+      return this.$store.getters['mock/hosts']
+    },
+    host() {
+      return this.$store.getters['mock/hostField']
+    },
+  },
+  watch: {
+    host: function (val) {
+      if (!this.disabled) {
+        this.coverData = val.id
+        this.hostField = val
+      }
+    },
   },
   mounted() {
   },
   methods: {
+    update() {
+      setTimeout(() => this.$store.commit('mock/updateHostField', this.hostField), 0)
+    },
     initData(data) {
       if (data) {
-        this.hostFeild = { ...data, protocol: parseInt(data.protocol) }
-        this.$emit('cover', data.id)
+        this.hostField = { ...data, protocol: parseInt(data.protocol) }
+        this.coverData = data.id
       } else {
-        this.hostFeild = {
+        this.hostField = {
           id: '',
           name: '',
           host: '',
@@ -187,34 +202,19 @@ export default {
           protocol: 1,
           online: 1,
         }
-        this.$emit('cover', '')
+        this.coverData = ''
       }
     },
     onCoverDateChange(id) {
       const [host] = this.hosts.filter(h => h.id === id)
       this.$refs.hostForm.resetFields()
       this.initData(host || null)
-      this.$store.commit('mock/updateHostField', this.hostFeild)
+      this.$store.commit('mock/updateHostField', this.hostField)
     },
-    getData() {
-      return new Promise((resolve, reject) => {
-        this.$refs.hostForm.validate((success) => {
-          if (success) {
-            const rst = Object.assign({}, this.hostFeild)
-            delete rst['apis']
-            resolve(rst)
-          } else {
-            reject()
-          }
-        })
-      })
-    },
-    setCoverId(id) {
-      this.coverData = id
-      const [host] = this.hosts.filter(h => h.id === id)
+    clear() {
       this.$refs.hostForm.resetFields()
-      this.initData(host || null)
-      this.$store.commit('mock/updateHostField', this.hostFeild)
+      this.initData(null)
+      this.$store.commit('mock/updateHostField', null)
     },
   },
 }

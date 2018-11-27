@@ -39,6 +39,7 @@
     <insert-form
       ref='insertFrom'
       :projectId='$route.params.projectId'
+      @submit='() => {drawerVisible = false; getData()}'
       v-model='drawerVisible' />
     <Modal
       class='host-modal'

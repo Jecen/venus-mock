@@ -42,6 +42,7 @@ class GraphQLService {
 
   private initGraphQLRootValue() {
     return {
+      // Query
       param: async ({ id }) =>  {
         const param = await this.paramHandler.obtain({ id: id || '' });
         return new Param(param);
@@ -97,6 +98,7 @@ class GraphQLService {
           return new Project(p);
         })});
       },
+      // Mutation
       insertProject: async ({ project }) => {
         return (await this.projectHandler.insert(project)).id;
       },
@@ -107,6 +109,18 @@ class GraphQLService {
       deleteProject: async ({ id }) => {
         const data = await this.projectHandler.del({ id });
         return data.id;
+      },
+      insertHost: async ({ host }) => {
+        return (await this.hostHandler.insert(host)).id;
+      },
+      insertApi: async ({ api }) => {
+        return (await this.apiHandler.insert(api)).id;
+      },
+      insertMethod: async ({ method }) => {
+        return (await this.methodHandler.insert(method)).id;
+      },
+      insertParams: async ({ params }) => {
+        return await this.paramHandler.batchInsert(params);
       },
     };
   }

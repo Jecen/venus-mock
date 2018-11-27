@@ -3,21 +3,30 @@ import { http } from 'root/app'
 
 // 初始化store对象
 const state = {
-  hosts: [],
   projects: [],
-  overView: {},
-  insertField: {
-    host: {
-      id: '',
-      name: '',
-      host: '',
-      port: 80,
-      path: '',
-      protocol: 1,
-      online: true,
-    },
-    api: {},
-    method: {},
+  overView: { project: { hosts: { list: [] }}},
+
+  hostField: {
+    id: '',
+    name: '',
+    host: '',
+    port: 80,
+    path: '',
+    protocol: 1,
+    online: true,
+  },
+  apiField: {
+    id: '',
+    name: '',
+    url: '',
+    type: 7,
+  },
+  methodField: {
+    id: '',
+    name: '',
+    method: 3,
+    result: '',
+    params: [],
   },
 }
 
@@ -25,6 +34,20 @@ const state = {
 const actions = {
   // graphql
   async getProjects({ commit }) {
+    http.post('/graphql', {
+      query: `query {
+        __schema{
+          types {
+            name
+            kind
+            fields {
+              name
+            }
+          }
+        }
+      }`,
+      variable: { },
+    })
     const { data, success } = await http.post('/graphql', {
       query: `query ($projectPage: Int!, $projectSize: Int!) {
         projectList (page: $projectPage, size: $projectSize) {
@@ -88,10 +111,10 @@ const actions = {
                 id name url type
                 methods (page: 1, size: 200) {
                   list {
-                    id name method methodName disable
+                    id name method methodName disable result
                     params (page: 1, size: 200) {
                       list {
-                        id name
+                        id name key type info mandatory
                       }
                     }
                   }
@@ -114,6 +137,43 @@ const actions = {
       return data
     }
   },
+
+  async insertHost({ state }, payload) { // eslint-disable-line
+    const { data, success } = await http.post('/graphql', {
+      query: `mutation ($host: hostField!) { insertHost(host: $host) }`,
+      variable: { host: payload },
+    })
+    if (success) {
+      return data
+    }
+  },
+  async insertApi({ state }, payload) { // eslint-disable-line
+    const { data, success } = await http.post('/graphql', {
+      query: `mutation ($api: apiField!) { insertApi(api: $api) }`,
+      variable: { api: payload },
+    })
+    if (success) {
+      return data
+    }
+  },
+  async insertMethod({ state }, payload) { // eslint-disable-line
+    const { data, success } = await http.post('/graphql', {
+      query: `mutation ($method: methodField!) { insertMethod(method: $method) }`,
+      variable: { method: payload },
+    })
+    if (success) {
+      return data
+    }
+  },
+  async insertParams({ state }, payload) { // eslint-disable-line
+    const { data, success } = await http.post('/graphql', {
+      query: `mutation ($params: [paramField]!) { insertParams(params: $params) }`,
+      variable: { params: payload },
+    })
+    if (success) {
+      return data
+    }
+  },
 }
 
 const mutations = {
@@ -125,38 +185,101 @@ const mutations = {
   },
 
   updateHostField(state, payload) {
-    state.insertField = {
-      ...state.insertField,
-      host: payload,
+    state.hostField = payload || {
+      id: '',
+      name: '',
+      host: '',
+      port: 80,
+      path: '',
+      protocol: 1,
+      online: true,
     }
   },
   updateApiField(state, payload) {
-    state.insertField = {
-      ...state.insertField,
-      api: payload,
+    state.apiField = payload || {
+      id: '',
+      name: '',
+      url: '',
+      type: 7,
     }
   },
   updateMethodField(state, payload) {
-    state.insertField = {
-      ...state.insertField,
-      method: payload,
+    state.methodField = payload || {
+      id: '',
+      name: '',
+      method: 3,
+      result: '',
+      params: [],
     }
   },
 }
 
 
 const getters = {
-  hosts(state) {
-    return state.hosts
-  },
   projects(state) {
     return state.projects
   },
   overview(state) {
     return state.overView
   },
+
   hostField(state) {
-    return state.insertField.host
+    return state.hostField
+  },
+  apiField(state) {
+    return state.apiField
+  },
+  methodField(state) {
+    return state.methodField
+  },
+
+  hosts(state) {
+    const { overView: { project: { hosts: { list }}}} = state
+    return list.map((h) => {
+      const temp = Object.assign({}, h)
+      delete temp['apis']
+      return temp
+    })
+  },
+
+  apis(state) {
+    const { hostField: { id }, overView: { project: { hosts: { list }}}} = state
+    if (id) {
+      const [host] = list.filter(h => h.id === id)
+      if (host) {
+        const { apis: { list } = { list: [] }} = host
+        return list.map((a) => {
+          const temp = Object.assign({}, a)
+          delete temp['methods']
+          return temp
+        })
+      }
+    }
+    return []
+  },
+
+  methods(state) {
+    const { hostField: { id: hostId }, apiField: { id: apiId }, overView: { project: { hosts: { list }}}} = state
+    if (hostId && apiId) {
+      const [host] = list.filter(h => h.id === hostId)
+      if (host) {
+        const { apis: { list } = { list: [] }} = host
+        const [api] = list.filter(a => a.id === apiId)
+        if (api) {
+          const { methods: { list }} = api
+          return list
+        }
+      }
+    }
+    return []
+  },
+
+  insertField(state) {
+    return {
+      host: state.hostField,
+      api: state.apiField,
+      method: state.methodField,
+    }
   },
 }
 

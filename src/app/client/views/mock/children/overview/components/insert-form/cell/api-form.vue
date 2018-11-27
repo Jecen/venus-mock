@@ -3,7 +3,7 @@
     <p class='form-title'>Api</p>
     <Form
       ref='apiForm'
-      :model='apiFeild'
+      :model='apiField'
       :rules='apiRule'
       :label-width='80'>
       <FormItem label='API名称' prop='name' class='cover-itm'>
@@ -14,7 +14,8 @@
               :clearable='!disabled'
               placeholder='请输入名称'
               :disabled='disabled'
-              v-model='apiFeild.name'>
+              @input='update'
+              v-model='apiField.name'>
             </Input>
           </Col>
           <Col span='4' style='text-align: center;'> Cover By </Col>
@@ -53,10 +54,11 @@
               :disabled='disabled'
               placeholder='请输入路径'
               type='text'
+              @input='update'
               :clearable='!disabled'
-              v-model='apiFeild.url'>
+              v-model='apiField.url'>
               <span class='host-url' slot='prepend'>
-                {{protocolDict[host.protocol] || "http"}}://{{host.host || "[host]"}}{{host.port !== 80 ? `:${host.port}` : ''}}{{host.path || "/[path]"}}
+                {{protocolDict[hostField.protocol] || "http"}}://{{hostField.host || "[host]"}}{{hostField.port !== 80 ? `:${hostField.port}` : ''}}{{hostField.path || "/[path]"}}
               </span>
             </Input>
           </FormItem>
@@ -65,9 +67,10 @@
           <FormItem label='isMock' prop='type'>
             <i-switch
               class='type-switch'
-              v-model='apiFeild.type'
+              v-model='apiField.type'
               size='large'
               :disabled='disabled'
+              @input='update'
               :true-value='7'
               :false-value='8'>
               <span slot='open'>MOCK</span>
@@ -77,17 +80,15 @@
         </Col>
       </Row>
     </Form>
-    {{!!coverId}}{{coverId}}
   </div>
 </template>
 
 <script>
-import _ from 'lodash'
 export default {
   name: 'ApiForm',
   data() {
     return {
-      apiFeild: {
+      apiField: {
         name: '',
         url: '',
         type: 7,
@@ -122,15 +123,17 @@ export default {
     }
   },
   computed: {
-    host() {
+    api() {
+      return this.$store.getters['mock/apiField']
+    },
+    hostField() {
       return this.$store.getters['mock/hostField']
     },
     apis() {
-      const { apis: { list } = { list: [] }} = this.host
-      return list
+      return this.$store.getters['mock/apis']
     },
     disabled() {
-      return this.coverId !== ''
+      return !!this.coverId
     },
     protocolDict() {
       const { options } = this.$store.getters['common/dict']('protocol') || { options: [] }
@@ -142,22 +145,33 @@ export default {
     },
   },
   watch: {
-    host: function (val) {
-      const { apis: { list } = { list: [] }} = val
-      const index = _.findIndex(list, { id: `${this.coverId}` })
-      this.coverId = index > -1 ? this.coverId : ''
+    apis: function () {
+      this.coverId = ''
+    },
+    api: function (api) {
+      if (!this.disabled) {
+        this.coverId = api.id
+        this.apiField = api
+      }
     },
   },
   methods: {
+    update() {
+      setTimeout(() => {
+        this.$store.commit('mock/updateApiField', this.apiField)
+      }, 0)
+    },
     initData(data) {
       if (data) {
-        this.apiFeild = { ...data }
+        this.apiField = { ...data }
+        this.coverId = data.id
       } else {
-        this.apiFeild = {
+        this.apiField = {
           name: '',
           url: '',
           type: 7,
         }
+        this.coverId = ''
       }
     },
     onCoverDateChange(id) {
@@ -165,27 +179,12 @@ export default {
       const [api] = this.apis.filter(a => `${a.id}` === `${id}`)
       this.$refs.apiForm.resetFields()
       this.initData(api || null)
-      this.$store.commit('mock/updateApiField', this.apiFeild)
+      this.$store.commit('mock/updateApiField', this.apiField)
     },
-    getData() {
-      return new Promise((resolve, reject) => {
-        this.$refs.apiForm.validate((success) => {
-          if (success) {
-            const rst = Object.assign({}, this.apiFeild)
-            delete rst['methods']
-            resolve(rst)
-          } else {
-            reject()
-          }
-        })
-      })
-    },
-    setCoverId(id) {
-      this.coverId = id
-      const [api] = this.apis.filter(a => a.id === id)
+    clear() {
       this.$refs.apiForm.resetFields()
-      this.initData(api || null)
-      this.$store.commit('mock/updateApiField', this.apiFeild)
+      this.initData(null)
+      this.$store.commit('mock/updateApiField', null)
     },
   },
 }
