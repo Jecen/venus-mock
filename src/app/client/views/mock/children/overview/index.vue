@@ -4,8 +4,8 @@
     <Row class='content'>
       <Col
         class='content-col'
-        :xs='24'
-        :sm='24'
+        :xs='18'
+        :sm='18'
         :md='18'
         :lg='16'>
         <host-box
@@ -20,11 +20,11 @@
       </Col>
       <Col
         class='content-col'
-        :xs='0'
-        :sm='0'
+        :xs='6'
+        :sm='6'
         :md='6'
         :lg='8'>
-        Method
+        <method-box />
       </Col>
     </Row>
 
@@ -69,7 +69,7 @@
       </Form>
    </Modal>
 
-   <Drawer
+    <Drawer
       :width='800'
       class='test-drawer'
       :closable='false'
@@ -89,12 +89,14 @@
 import insertForm from './components/insert-form'
 import projectInfo from './components/project-info'
 import hostBox from './components/host-box'
+import methodBox from './components/method-box'
 export default {
   name: 'Host',
   components: {
     'project-info': projectInfo,
     'host-box': hostBox,
     'insert-form': insertForm,
+    'method-box': methodBox,
   },
   data() {
     return {
@@ -188,7 +190,7 @@ export default {
     },
     hosts() {
       const { hosts: { list } = { list: [] }} = this.project || {}
-      return list
+      return [...list]
     },
   },
   created() {
@@ -200,24 +202,12 @@ export default {
     this.$mockSocket.registerListener('testStep', (data) => {
       const obj = JSON.parse(data)
       this.handler(obj)
-      console.log(obj, '!!!')
     })
   },
   methods: {
     async getData() {
       const { projectId: id } = this.$route.params
-      const { project, host: hosts } = await this.$store.dispatch('mock/getOverViewDate', { id })
-      this.project = project
-      this.hosts = hosts
-    },
-    async fetchApis(h, v) {
-      if (v) {
-        const apis = await this.$store.dispatch('mock/getHostOverviewData', { id: h.id })
-        this.apiMap = {
-          ...this.apiMap,
-          [h.id]: apis,
-        }
-      }
+      await this.$store.dispatch('mock/getOverViewDate', { id })
     },
     editHost(host) {
       this.hostModal = true

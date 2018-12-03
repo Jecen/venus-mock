@@ -47,11 +47,12 @@
         <div v-if='apis.length === 0' class='empty-holder'>
           暂无Api,请<a>新增</a>
         </div>
-        <div v-esle class='inner-wrapper'>
+        <div v-else class='inner-wrapper'>
           <api-item
             class='api-itm'
             v-for='api in apis'
             :insertFrom='insertFrom'
+            @update='$emit("update")'
             :host='host'
             :api='api'
             :key='api.id' />
@@ -129,7 +130,7 @@ export default {
       if (val !== this.host.online) {
         this.isSwitching = true
         this.$store.dispatch('mock/updateHost', {
-          ...this.host,
+          id: parseInt(this.host.id),
           online: val,
         })
           .then(() => {
@@ -140,6 +141,9 @@ export default {
           })
       }
     },
+  },
+  mounted() {
+    this.online = this.host.online
   },
   methods: {
     testAllApi(host) {

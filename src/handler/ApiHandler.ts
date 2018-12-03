@@ -96,17 +96,34 @@ class ApiHandler extends Handler{
    */
   public async update(params: any): Promise<any> {
     return new Promise(async (resolve, reject) => {
-      const { id, name, url, type } = params;
+      const { id } = params;
+      const field = [];
+      const val = [];
+      Object.keys(params).forEach((key) => {
+        if (key !== 'id') {
+          if (typeof params[key] === 'boolean') {
+            field.push(key);
+            val.push(params[key] ? 1 : 0);
+          } else if (params[key]) {
+            field.push(key);
+            val.push(params[key]);
+          }
+        }
+      });
+
+      if (field.length === 0) {
+        reject('修改参数错误');
+      }
 
       const sql = `
         UPDATE apis
-        SET (name, url, type) = (?, ?, ?)
+        SET (${field.join(',')}) = (${field.map(() => '?')})
         WHERE id = ?
       `;
-      const paramKeys = ['name', 'url', 'type'];
+      const paramKeys = ['id'];
       const checkRst = this.checkParams(params, paramKeys);
       if (checkRst.pass) {
-        const data = await this.run(sql, [name, url, type, id]);
+        const data = await this.run(sql, [...val, id]);
         if (data) {
           mockModule.update();
           resolve({ id: data.lastID });

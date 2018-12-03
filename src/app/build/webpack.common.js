@@ -3,7 +3,6 @@
 'use strict'
 
 const path = require('path')
-const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 
@@ -15,7 +14,6 @@ module.exports = (mode) => ({
   context: _.resolve('./client'),
   entry: {
     client: 'index.js',
-    vendors: ['vue', 'iview', 'vue-router', 'vuex'],
   },
   output: {
     filename: 'static/[name].[hash:7].js',
@@ -73,10 +71,6 @@ module.exports = (mode) => ({
       to: './static',
     }]),
     new VueLoaderPlugin(),
-    new webpack.DllReferencePlugin({
-      context: '.',
-      manifest: require('../dist/dll/vendor-manifest.json'),
-    }),
   ],
   target: 'web',
 })

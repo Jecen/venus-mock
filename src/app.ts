@@ -27,22 +27,22 @@ app.on('error', (err, ctx) => {
 });
 
 app
-    .use(km_logger())
-    .use(koaBody({ multipart: true, formLimit: '5mb', jsonLimit: '5mb', textLimit: '5mb' }))
-    .use(bodyParser())
-    .use(async (ctx, next) => {
-      ctx['mockIo'] = mockIo;
-      mockIo.clearRegister();
-      mockIo.registerReceive('testHostApi', ({ id, timeStamp }) => {
-        service.runTestApis(id, timeStamp, mockIo);
-      });
-      await next();
-    })
-    .use(routers.routes())
-    .use(routers.allowedMethods())
-    .use(historyApiFallback())
-    .use(km_static(path.join(__dirname, './app/dist')))
-    .use(km_static(path.join(__dirname, '../static')));
+  .use(km_logger())
+  .use(koaBody({ multipart: true, formLimit: '5mb', jsonLimit: '5mb', textLimit: '5mb' }))
+  .use(bodyParser())
+  .use(async (ctx, next) => {
+    ctx['mockIo'] = mockIo;
+    mockIo.clearRegister();
+    mockIo.registerReceive('testHostApi', ({ id, timeStamp }) => {
+      service.runTestApis(id, timeStamp, mockIo);
+    });
+    await next();
+  })
+  .use(routers.routes())
+  .use(routers.allowedMethods())
+  .use(historyApiFallback())
+  .use(km_static(path.join(__dirname, './app/dist')))
+  .use(km_static(path.join(__dirname, '../static')));
 app.listen(appOption.httpPort);
 
 log.sysInfo(`main server start at port: ${appOption.httpPort}`);

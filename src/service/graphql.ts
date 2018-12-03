@@ -113,6 +113,10 @@ class GraphQLService {
       insertHost: async ({ host }) => {
         return (await this.hostHandler.insert(host)).id;
       },
+      updateHost: async({ host }) => {
+        const rst = await this.hostHandler.update(host);
+        return rst.id === 0 || !!rst.id;
+      },
       insertApi: async ({ api }) => {
         return (await this.apiHandler.insert(api)).id;
       },

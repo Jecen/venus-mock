@@ -4,8 +4,8 @@
   "description": "venus-mock-fe",
   "scripts": {
     "test": "",
-    "build": "npm run dll && webpack --env.NODE_ENV=local --config build/webpack.prod.js",
-    "dev": "npm run dll && webpack-dev-server --open --config build/webpack.dev.js",
+    "build": "webpack --env.NODE_ENV=local --config build/webpack.prod.js",
+    "dev": "webpack-dev-server --open --config build/webpack.dev.js",
     "dll": "webpack --config build/webpack.dll.js",
     "lint": "xo **/client/**/*.{vue,js} !node_modules/**",
     "copy": "node ./build/copy.js"

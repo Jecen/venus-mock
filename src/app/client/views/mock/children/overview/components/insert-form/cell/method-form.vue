@@ -14,7 +14,6 @@
             <RadioGroup
               class='radio'
               v-model='currentMethod'
-              @on-change='onMethodChange'
               type='button'>
               <Radio
                 class='m-btn'

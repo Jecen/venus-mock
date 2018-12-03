@@ -6,6 +6,7 @@
         class='radio'
         size='small'
         v-model='apiType'
+        @input='updateApi()'
         type='button'>
         <Radio v-for='opt in typeDict.options' :key='opt.id' :label='opt.id'>{{opt.name}}</Radio>
       </RadioGroup>
@@ -18,6 +19,7 @@
         size='small'
         v-for='m in methods'
         :key='m.id'
+        @click='showMethod(m)'
         type='text'>
         {{m.methodName.toUpperCase()}}
       </Button>
@@ -96,8 +98,27 @@ export default {
       this.insertFrom && this.insertFrom.show()
       await this.insertFrom.initHost(this.host.id)
       await this.insertFrom.initApi(this.api)
+    },
+    showMethod(m) {
+      this.$store.commit('mock/showCurrentMethod', m)
+    },
+    async updateApi() {
+      setTimeout(async () => {
+        this.isLoading = true
+        try {
+          const { id } = await this.$store.dispatch('mock/updateApi', {
+            id: this.api.id,
+            type: this.apiType,
+          })
 
-      // await this.insertFrom.initApi(api.id)
+          if (id === 0 || id) {
+            this.$emit('update')
+          }
+        } finally {
+          this.isLoading = false
+        }
+
+      }, 0)
     },
   },
 }

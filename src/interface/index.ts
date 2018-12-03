@@ -253,12 +253,23 @@ export const schema = buildSchema(`
     mandatory: Boolean!
   }
 
+  input updateHostField {
+    id: Int!
+    name: String
+    host: String
+    port: Int
+    path: String
+    protocol: Int
+    online: Boolean
+  }
+
   type Mutation {
     insertProject(project: projectField!): ID
     updateProject(project: updateProjectField!): ID
     deleteProject(id: ID!): ID
 
     insertHost(host: hostField!): ID
+    updateHost(host: updateHostField!): Boolean
 
     insertApi(api: apiField!): ID
 

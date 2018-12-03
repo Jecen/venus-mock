@@ -1,4 +1,3 @@
-import apiFunc, {projectApi, hostApi, apiApi, methodApi, paramApi} from './api' // eslint-disable-line
 import { http } from 'root/app'
 
 // 初始化store对象
@@ -28,6 +27,7 @@ const state = {
     result: '',
     params: [],
   },
+  currentMethod: null,
 }
 
 // 异步操作放到action handler里
@@ -147,6 +147,16 @@ const actions = {
       return data
     }
   },
+  async updateHost({ state }, payload) { // eslint-disable-line
+    const { data, success } = await http.post('/graphql', {
+      query: `mutation ($host: updateHostField!) { updateHost(host: $host) }`,
+      variable: { host: payload },
+    })
+    if (success) {
+      return data
+    }
+  },
+
   async insertApi({ state }, payload) { // eslint-disable-line
     const { data, success } = await http.post('/graphql', {
       query: `mutation ($api: apiField!) { insertApi(api: $api) }`,
@@ -212,6 +222,10 @@ const mutations = {
       params: [],
     }
   },
+
+  showCurrentMethod(state, payload) {
+    state.currentMethod = payload
+  },
 }
 
 
@@ -250,7 +264,6 @@ const getters = {
         const { apis: { list } = { list: [] }} = host
         return list.map((a) => {
           const temp = Object.assign({}, a)
-          delete temp['methods']
           return temp
         })
       }
@@ -280,6 +293,10 @@ const getters = {
       api: state.apiField,
       method: state.methodField,
     }
+  },
+
+  currentMethod(state) {
+    return state.currentMethod
   },
 }
 
