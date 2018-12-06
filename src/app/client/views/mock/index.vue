@@ -1,6 +1,7 @@
 <template>
   <layer>
     <router-view />
+    <animation-cursor />
   </layer>
 </template>
 

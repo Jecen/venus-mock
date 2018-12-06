@@ -1,30 +1,30 @@
 <template>
-  <section class='cp method-box'>
-    <section class='method-info'>
-     &nbsp;
+  <article class='cp method-box'>
+    <header>
+      <h1>Developer Host <span class='count'>[{{count}}]</span> </h1>
+    </header>
+    <section>
+      <ul>
+        <li v-for='itm in list' :key='itm.id'>
+          {{itm.name}}
+        </li>
+      </ul>
     </section>
-  </section>
+    <footer>
+      <Button>add developer </Button>
+    </footer>
+  </article>
 </template>
 
 <script>
 export default {
   name: 'MethodBox',
-  computed: {
-    method() {
-      return this.$store.getters['mock/currentMethod']
-    },
-    typeDict() {
-      return this.$store.getters['common/dict']('paramsType') || { options: [] }
-    },
-    paramsTypeMap() {
-      const map = {}
-      const { options } = this.typeDict
-      options.forEach(opt => {
-        map[opt.id] = opt
-      })
-      return map
-    },
+  data() {
+    return {
+      list: [],
+    }
   },
+  computed: {},
 }
 </script>
 

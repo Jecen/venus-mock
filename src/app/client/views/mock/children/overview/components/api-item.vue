@@ -1,12 +1,12 @@
 <template>
   <div class='cp api-item' :style='host.online ? "" : `filter: grayscale(100%);`' v-if='api'>
     <p class='api-name'>
-      {{api.name}}
+      <a @click='() => {apiModal = true}'>{{api.name}}</a>
       <RadioGroup
         class='radio'
         size='small'
         v-model='apiType'
-        @input='updateApi()'
+        @input='(val) => updateApi({type: val})'
         type='button'>
         <Radio v-for='opt in typeDict.options' :key='opt.id' :label='opt.id'>{{opt.name}}</Radio>
       </RadioGroup>
@@ -14,20 +14,28 @@
     </p>
     <p class='method-box'>
       <span class='des'>Method: </span>
-      <Button
-        class='method-btn'
-        size='small'
+      <Poptip
+        class='btn-pop'
         v-for='m in methods'
         :key='m.id'
-        @click='showMethod(m)'
-        type='text'>
-        {{m.methodName.toUpperCase()}}
-      </Button>
+        trigger='hover'
+        word-wrap
+        :content='m.name'
+        transfer>
+        <Button
+          class='method-btn'
+          size='small'
+          @click='showMethod(m)'
+          type='text'>
+          {{m.methodName.toUpperCase()}}
+        </Button>
+      </Poptip>
       <Button
         class='method-btn add-btn'
         size='small'
         icon='md-add-circle'
         ghost
+        v-if='methods.length < 4'
         @click='addMethod'
         type='text' />
       <i style='flex: 1;' />
@@ -45,6 +53,35 @@
       style='position: absolute; opacity:0;z-index: -1;'
       ref='copy-holder'
       :value='`${host.protocolName}://${host.host}${host.path}${api.url}`'>
+
+    <Modal
+      class='api-modal'
+      v-model='apiModal'
+      title='修改api'
+      @on-ok='submitApi'
+      @on-cancel='cancel'>
+      <Form
+        ref='apiForm'
+        :label-width='80'
+        :model='apiFeild'
+        :rules='apiRule'>
+        <FormItem prop='name' label='名称:'>
+          <Input
+            v-model='apiFeild.name'
+            placeholder='请输入名称'
+            clearable>
+          </Input>
+        </FormItem>
+        <FormItem prop='url' label='url:'>
+          <Input
+            v-model='apiFeild.url'
+            placeholder='请输入url'
+            clearable>
+          </Input>
+        </FormItem>
+      </Form>
+   </Modal>
+
   </div>
 </template>
 
@@ -68,6 +105,38 @@ export default {
   data() {
     return {
       apiType: this.api.type || '',
+      isLoading: false,
+      apiModal: false,
+      apiFeild: {
+        name: '',
+        url: '',
+      },
+      apiRule: {
+        name: [{
+          validator: (rule, value, callback) => { // eslint-disable-line
+            if (value === '') {
+              callback(new Error('名称不能为空！'))
+            } else {
+              callback()
+            }
+          },
+          trigger: 'blur',
+        }],
+        url: [{
+           validator: (rule, value, callback) => { // eslint-disable-line
+            if (value === '') {
+              callback()
+            } else {
+              if (/^\/[\S]*$/.test(value)) {
+                callback()
+              } else {
+                callback(new Error('格式错误，例: [/info/app]'))
+              }
+            }
+          },
+          trigger: 'blur',
+        }],
+      },
     }
   },
   computed: {
@@ -78,16 +147,45 @@ export default {
       const { methods } = this.api
       return methods ? methods.list : []
     },
+    paramsTypeDict() {
+      return this.$store.getters['common/dict']('paramsType') || { options: [] }
+    },
+    paramsTypeMap() {
+      const map = {}
+      const { options } = this.paramsTypeDict
+      options.forEach(opt => {
+        map[opt.id] = opt
+      })
+      return map
+    },
   },
   watch: {
     api: function (val) {
       this.apiType = val.type
+    },
+    apiModal: function (val) {
+      if (val) {
+        this.apiFeild = {
+          name: this.api.name,
+          url: this.api.url,
+        }
+      }
     },
   },
   mounted() {
     this.$store.dispatch('common/getDict', { name: 'mockType' })
   },
   methods: {
+    async submitApi() {
+      const entry = { ...this.apiFeild }
+      const success = await this.updateApi(entry)
+      if (success) {
+        this.cancel()
+      }
+    },
+    cancel() {
+      this.apiModal = false
+    },
     copyUrl() {
       const holder = this.$refs['copy-holder']
       holder.select()
@@ -102,22 +200,22 @@ export default {
     showMethod(m) {
       this.$store.commit('mock/showCurrentMethod', m)
     },
-    async updateApi() {
+    async updateApi(entry) {
       setTimeout(async () => {
         this.isLoading = true
         try {
-          const { id } = await this.$store.dispatch('mock/updateApi', {
+          const { updateApi } = await this.$store.dispatch('mock/updateApi', {
             id: this.api.id,
-            type: this.apiType,
+            ...entry,
           })
 
-          if (id === 0 || id) {
+          if (updateApi) {
             this.$emit('update')
           }
+          return updateApi
         } finally {
           this.isLoading = false
         }
-
       }, 0)
     },
   },
@@ -166,6 +264,7 @@ export default {
       color: #515a6e;
     }
   }
+
   .method-box{
     height: 40px;
     line-height: 40px;
@@ -176,6 +275,13 @@ export default {
       font-size: 14px;
       font-weight: 500;
       margin-right: 5px;
+    }
+    .btn-pop{
+      height: 30px;
+      line-height: 30px;
+      & /deep/ .ivu-poptip-rel{
+        height: 30px;
+      }
     }
     .method-btn{
       padding: 0 7px 2px;

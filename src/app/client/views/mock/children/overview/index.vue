@@ -225,7 +225,7 @@ export default {
       const { id, name, fullPath, protocol } = this.hostFeild
       const [host, ...pathArr] = fullPath.split('/')
       const params = {}
-      params['id'] = id
+      params['id'] = parseInt(id)
       params['name'] = name
       params['host'] = host
       params['path'] = `/${pathArr.join('/')}`

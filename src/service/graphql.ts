@@ -120,6 +120,10 @@ class GraphQLService {
       insertApi: async ({ api }) => {
         return (await this.apiHandler.insert(api)).id;
       },
+      updateApi: async({ api }) => {
+        const rst = await this.apiHandler.update(api);
+        return rst.id === 0 || !!rst.id;
+      },
       insertMethod: async ({ method }) => {
         return (await this.methodHandler.insert(method)).id;
       },

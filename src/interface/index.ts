@@ -263,6 +263,13 @@ export const schema = buildSchema(`
     online: Boolean
   }
 
+  input updateApiField {
+    id: ID!
+    name: String
+    url: String
+    type: Int
+  }
+
   type Mutation {
     insertProject(project: projectField!): ID
     updateProject(project: updateProjectField!): ID
@@ -272,6 +279,7 @@ export const schema = buildSchema(`
     updateHost(host: updateHostField!): Boolean
 
     insertApi(api: apiField!): ID
+    updateApi(api: updateApiField!): Boolean
 
     insertMethod(method: methodField!): ID
 

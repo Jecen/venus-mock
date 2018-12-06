@@ -9,13 +9,13 @@
       @input='v => $emit("input", v)'>
       <div class='content'>
         <div class='form-wrapper'>
-          <host-form ref='host' :hosts='hosts' />
+          <host-form ref='host' />
         </div>
         <div class='form-wrapper'>
           <api-form ref='api' />
         </div>
         <div class='form-wrapper'>
-          <method-form ref='method' @methodChange='methodChange' :methods='methods' />
+          <method-form ref='method' @methodChange='methodChange' />
         </div>
         <div class='footer'>
           <Button
@@ -59,23 +59,6 @@ export default {
       isSaveing: false,
       saveDisable: false,
     }
-  },
-  computed: {
-    methods() {
-      return this.api.methods || []
-    },
-
-    overview() {
-      return this.$store.getters['mock/overview']
-    },
-    project() {
-      const { project } = this.overview
-      return project
-    },
-    hosts() {
-      const { hosts: { list } = { list: [] }} = this.project || {}
-      return list
-    },
   },
   methods: {
     show() {

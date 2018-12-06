@@ -62,7 +62,6 @@ module.exports = (mode) => ({
     new HtmlWebpackPlugin({
       title: 'Venus-Mock',
       template: path.resolve(__dirname, 'index.html'),
-      dllScript: `<script type="text/javascript" src="/dll/dll_vendor.js"></script>`,
       inject: true,
     }),
     new CopyWebpackPlugin([{

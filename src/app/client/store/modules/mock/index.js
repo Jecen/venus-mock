@@ -137,7 +137,6 @@ const actions = {
       return data
     }
   },
-
   async insertHost({ state }, payload) { // eslint-disable-line
     const { data, success } = await http.post('/graphql', {
       query: `mutation ($host: hostField!) { insertHost(host: $host) }`,
@@ -156,10 +155,18 @@ const actions = {
       return data
     }
   },
-
   async insertApi({ state }, payload) { // eslint-disable-line
     const { data, success } = await http.post('/graphql', {
       query: `mutation ($api: apiField!) { insertApi(api: $api) }`,
+      variable: { api: payload },
+    })
+    if (success) {
+      return data
+    }
+  },
+  async updateApi({ state }, payload) { // eslint-disable-line
+    const { data, success } = await http.post('/graphql', {
+      query: `mutation ($api: updateApiField!) { updateApi(api: $api) }`,
       variable: { api: payload },
     })
     if (success) {
